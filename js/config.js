@@ -9,11 +9,16 @@ const config = {
       price: 1,
       inventory: 0,
       demand: 1,
+      unlocked: true,
     },
   ],
 
   capital: 100,
   labor: 10,
+  laborGrowthRate: (n) => Math.max(1, Math.floor(n * n * 0.001)),
+
+  wages: 2,
+  unrest: 0,
 };
 
 module.exports = {

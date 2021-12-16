@@ -8,10 +8,16 @@ const gameReducer = (game, action) => {
     case 'TICK': {
       game.time += 1;
 
+      // commodities
       for (const commodity of game.commodities) {
         // compute production of each commodity
         const production = commodity.laborAssigned / commodity.laborRequired;
         commodity.inventory += production;
+
+        // compute wages for production
+        game.capital -= commodity.laborAssigned * game.wages;
+        // TODO: Do something if wages are not payable
+
         // compute sales for each commodity
         const leftover = commodity.inventory - commodity.demand;
         commodity.inventory = Math.max(0, leftover);
@@ -24,6 +30,17 @@ const gameReducer = (game, action) => {
         // TODO: Do something if demand is not met
       }
 
+      // labor pool
+      let totalLabor = game.labor;
+      game.commodities.forEach(c => totalLabor += c.laborAssigned);
+      game.labor += config.laborGrowthRate(totalLabor)
+      // TODO: Do something if wages are less than total demand * price
+
+      return game;
+    }
+    case 'INCREMENT_WAGES': {
+      const {wageChange} = action;
+      game.wages += wageChange;
       return game;
     }
     case 'INCREMENT_PRICE': {

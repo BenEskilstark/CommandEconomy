@@ -22,5 +22,7 @@ export type GameState = {
   people: Array<Person>,
   capital: Dollar, // how much money you have
   labor: Labor, // how much unassigned labor you have
+  wages: Dollar,
+  unrest: number,
   time: number,
 };

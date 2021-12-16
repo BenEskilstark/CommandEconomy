@@ -33,6 +33,7 @@ const rootReducer = (state: State, action: Action): State => {
       return modalReducer(state, action);
     case 'INCREMENT_PRICE':
     case 'INCREMENT_LABOR':
+    case 'INCREMENT_WAGES':
     case 'TICK': {
       if (!state.game) return state;
       return {
@@ -59,6 +60,8 @@ const initGameState = () => {
     commodities: config.commodities.map(c => deepCopy(c)),
     capital: config.capital,
     labor: config.labor,
+    wages: config.wages,
+    unrest: config.unrest,
     people: [],
     time: 0,
   };

@@ -41,6 +41,16 @@ function Info(props): React.Node {
     <InfoCard>
       <div>Capital: {game.capital}</div>
       <div>Labor: {game.labor}</div>
+      <div>
+        Wages: {game.wages}
+        <Button label="Lower Wages" disabled={game.wages <= 0}
+          onClick={() => dispatch({type: 'INCREMENT_WAGES', wageChange: -1})} />
+        <Button label="Raise Wages"
+          onClick={() => dispatch({type: 'INCREMENT_WAGES', wageChange: 1})} />
+      </div>
+      <div>
+        Unrest: {game.unrest}%
+      </div>
       <Button label="Step Simulation" onClick={() => dispatch({type: 'TICK'})} />
     </InfoCard>
   );
@@ -54,6 +64,7 @@ function Commodity(props): React.Node {
       <div>Commodity: {commodity.name}</div>
       <div>Labor Required: {commodity.laborRequired}</div>
       <div>
+        Labor Assigned: {commodity.laborAssigned}
         <Button label="Unassign Labor"
           onClick={() => dispatch({type: 'INCREMENT_LABOR', laborChange: -1, name})}
           disabled={commodity.laborAssigned <= 0}
@@ -62,9 +73,9 @@ function Commodity(props): React.Node {
           onClick={() => dispatch({type: 'INCREMENT_LABOR', laborChange: 1, name})}
           disabled={game.labor <= 0}
         />
-        Labor Assigned: {commodity.laborAssigned}
       </div>
       <div>
+        Price: {commodity.price}
         <Button label="Lower Price"
           onClick={() => dispatch({type: 'INCREMENT_PRICE', priceChange: -1, name})}
           disabled={commodity.price <= 0}
@@ -72,7 +83,6 @@ function Commodity(props): React.Node {
         <Button label="Raise Price"
           onClick={() => dispatch({type: 'INCREMENT_PRICE', priceChange: 1, name})}
         />
-        Price: {commodity.price}
       </div>
       <div>Inventory: {commodity.inventory}</div>
       <div>Demand: {commodity.demand}</div>

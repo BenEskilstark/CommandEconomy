@@ -1,7 +1,18 @@
 
-- wages for labor
+- labor
+  - map labor to demand
+  - track how much money labor has
+
 - additional commodities
+  - button for producing additional types of commodities
+  - make this growth necessary
+
+- unrest counter
+  - what happens when demand isn't met
+  - when labor doesn't have enough money
+  - when wages can't be paid
+  - lose the game when unrest hits 100%
+  - reduce productivity based on unrest
+
 - ticks on a timer
-- costs for for production?
-- what happens when demand isn't met
-  - unrest counter
+- costs for production?

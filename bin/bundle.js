@@ -8,11 +8,18 @@ var config = {
     laborAssigned: 0,
     price: 1,
     inventory: 0,
-    demand: 1
+    demand: 1,
+    unlocked: true
   }],
 
   capital: 100,
-  labor: 10
+  labor: 10,
+  laborGrowthRate: function laborGrowthRate(n) {
+    return Math.max(1, Math.floor(n * n * 0.001));
+  },
+
+  wages: 2,
+  unrest: 0
 };
 
 module.exports = {
@@ -62,6 +69,7 @@ var gameReducer = function gameReducer(game, action) {
       {
         game.time += 1;
 
+        // commodities
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -73,6 +81,11 @@ var gameReducer = function gameReducer(game, action) {
             // compute production of each commodity
             var production = commodity.laborAssigned / commodity.laborRequired;
             commodity.inventory += production;
+
+            // compute wages for production
+            game.capital -= commodity.laborAssigned * game.wages;
+            // TODO: Do something if wages are not payable
+
             // compute sales for each commodity
             var leftover = commodity.inventory - commodity.demand;
             commodity.inventory = Math.max(0, leftover);
@@ -84,6 +97,8 @@ var gameReducer = function gameReducer(game, action) {
             }
             // TODO: Do something if demand is not met
           }
+
+          // labor pool
         } catch (err) {
           _didIteratorError = true;
           _iteratorError = err;
@@ -99,6 +114,16 @@ var gameReducer = function gameReducer(game, action) {
           }
         }
 
+        game.labor += config.laborGrowthRate(game.labor);
+        // TODO: Do something if wages are less than total demand * price
+
+        return game;
+      }
+    case 'INCREMENT_WAGES':
+      {
+        var wageChange = action.wageChange;
+
+        game.wages += wageChange;
         return game;
       }
     case 'INCREMENT_PRICE':
@@ -209,6 +234,7 @@ var rootReducer = function rootReducer(state, action) {
       return modalReducer(state, action);
     case 'INCREMENT_PRICE':
     case 'INCREMENT_LABOR':
+    case 'INCREMENT_WAGES':
     case 'TICK':
       {
         if (!state.game) return state;
@@ -236,6 +262,8 @@ var initGameState = function initGameState() {
     }),
     capital: config.capital,
     labor: config.labor,
+    wages: config.wages,
+    unrest: config.unrest,
     people: [],
     time: 0
   };
@@ -468,6 +496,27 @@ function Info(props) {
       'Labor: ',
       game.labor
     ),
+    React.createElement(
+      'div',
+      null,
+      'Wages: ',
+      game.wages,
+      React.createElement(Button, { label: 'Lower Wages', disabled: game.wages <= 0,
+        onClick: function onClick() {
+          return dispatch({ type: 'INCREMENT_WAGES', wageChange: -1 });
+        } }),
+      React.createElement(Button, { label: 'Raise Wages',
+        onClick: function onClick() {
+          return dispatch({ type: 'INCREMENT_WAGES', wageChange: 1 });
+        } })
+    ),
+    React.createElement(
+      'div',
+      null,
+      'Unrest: ',
+      game.unrest,
+      '%'
+    ),
     React.createElement(Button, { label: 'Step Simulation', onClick: function onClick() {
         return dispatch({ type: 'TICK' });
       } })
@@ -498,6 +547,8 @@ function Commodity(props) {
     React.createElement(
       'div',
       null,
+      'Labor Assigned: ',
+      commodity.laborAssigned,
       React.createElement(Button, { label: 'Unassign Labor',
         onClick: function onClick() {
           return dispatch({ type: 'INCREMENT_LABOR', laborChange: -1, name: name });
@@ -509,13 +560,13 @@ function Commodity(props) {
           return dispatch({ type: 'INCREMENT_LABOR', laborChange: 1, name: name });
         },
         disabled: game.labor <= 0
-      }),
-      'Labor Assigned: ',
-      commodity.laborAssigned
+      })
     ),
     React.createElement(
       'div',
       null,
+      'Price: ',
+      commodity.price,
       React.createElement(Button, { label: 'Lower Price',
         onClick: function onClick() {
           return dispatch({ type: 'INCREMENT_PRICE', priceChange: -1, name: name });
@@ -526,9 +577,7 @@ function Commodity(props) {
         onClick: function onClick() {
           return dispatch({ type: 'INCREMENT_PRICE', priceChange: 1, name: name });
         }
-      }),
-      'Price: ',
-      commodity.price
+      })
     ),
     React.createElement(
       'div',
