@@ -18,14 +18,19 @@ function Game(props: Props): React.Node {
 
   const commodities = [];
   for (const commodity of game.commodities) {
-    commodities.push(
-      <Commodity
-        key={'commodity_' + commodity.name}
-        dispatch={dispatch}
-        commodity={commodity} game={game}
-      />
-    );
+    if (commodity.unlocked) {
+      commodities.push(
+        <Commodity
+          key={'commodity_' + commodity.name}
+          dispatch={dispatch}
+          commodity={commodity} game={game}
+        />
+      );
+    }
   }
+
+  // TODO: add button to pay to unlock next commodity
+
   return (
     <div>
       <Info game={game} dispatch={dispatch} />

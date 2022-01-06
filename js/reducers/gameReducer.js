@@ -36,6 +36,8 @@ const gameReducer = (game, action) => {
       game.labor += config.laborGrowthRate(totalLabor)
       // TODO: Do something if wages are less than total demand * price
 
+      // TODO: compute demand based on price and labor
+
       return game;
     }
     case 'INCREMENT_WAGES': {
@@ -47,8 +49,7 @@ const gameReducer = (game, action) => {
       const {name, priceChange} = action;
       const commodity = getCommodity(game, name);
       commodity.price += priceChange;
-      // compute next demand for commodity
-      // TODO
+      // TODO compute next demand for commodity
 
       return game;
     }

@@ -21,7 +21,7 @@ const AudioWidget = (props) => {
   const playOrder = useMemo(() => {
     let initialOrder = props.audioFiles.map((a,i) => i);
     if (props.isShuffled) {
-      // TODO: shuffle the playOrder array
+      initialOrder.sort(() => (Math.random() > 0.5) ? 1 : -1)
     }
     return initialOrder;
   }, [props.audioFiles]);

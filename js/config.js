@@ -11,6 +11,15 @@ const config = {
       demand: 1,
       unlocked: true,
     },
+    {
+      name: 'Shirts',
+      laborRequired: 0.1,
+      laborAssigned: 0,
+      price: 1,
+      inventory: 0,
+      demand: 1,
+      unlocked: false,
+    },
   ],
 
   capital: 100,

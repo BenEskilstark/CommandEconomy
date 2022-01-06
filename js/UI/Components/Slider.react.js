@@ -55,7 +55,6 @@ function Slider(props) {
       </div>
     </div>
   );
-  // TODO slider originalValue should come from globalconfig
 }
 
 module.exports = Slider;

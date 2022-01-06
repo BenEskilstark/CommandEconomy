@@ -7,7 +7,7 @@ const {useState, useMemo, useEffect} = React;
  * onChange: (number) => void,
  * onlyInt: boolean, // only allow ints instead of floats
  * width: number,
- * submitOnEnter: boolean, // TODO: not implemented
+ * submitOnEnter: boolean, // not implemented -- hard to play nice w/other keys
  * submitOnBlur: boolean,
  */
 const NumberField = (props) => {

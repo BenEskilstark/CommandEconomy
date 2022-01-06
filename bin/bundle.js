@@ -10,6 +10,14 @@ var config = {
     inventory: 0,
     demand: 1,
     unlocked: true
+  }, {
+    name: 'Shirts',
+    laborRequired: 0.1,
+    laborAssigned: 0,
+    price: 1,
+    inventory: 0,
+    demand: 1,
+    unlocked: false
   }],
 
   capital: 100,
@@ -114,8 +122,14 @@ var gameReducer = function gameReducer(game, action) {
           }
         }
 
-        game.labor += config.laborGrowthRate(game.labor);
+        var totalLabor = game.labor;
+        game.commodities.forEach(function (c) {
+          return totalLabor += c.laborAssigned;
+        });
+        game.labor += config.laborGrowthRate(totalLabor);
         // TODO: Do something if wages are less than total demand * price
+
+        // TODO: compute demand based on price and labor
 
         return game;
       }
@@ -133,8 +147,7 @@ var gameReducer = function gameReducer(game, action) {
 
         var _commodity = getCommodity(game, name);
         _commodity.price += priceChange;
-        // compute next demand for commodity
-        // TODO
+        // TODO compute next demand for commodity
 
         return game;
       }
@@ -447,12 +460,16 @@ function Game(props) {
     for (var _iterator = game.commodities[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var commodity = _step.value;
 
-      commodities.push(React.createElement(Commodity, {
-        key: 'commodity_' + commodity.name,
-        dispatch: dispatch,
-        commodity: commodity, game: game
-      }));
+      if (commodity.unlocked) {
+        commodities.push(React.createElement(Commodity, {
+          key: 'commodity_' + commodity.name,
+          dispatch: dispatch,
+          commodity: commodity, game: game
+        }));
+      }
     }
+
+    // TODO: add button to pay to unlock next commodity
   } catch (err) {
     _didIteratorError = true;
     _iteratorError = err;
