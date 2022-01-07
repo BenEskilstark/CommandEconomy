@@ -15,17 +15,24 @@ const gameReducer = (game, action) => {
         commodity.inventory += production;
 
         // compute wages for production
-        game.capital -= commodity.laborAssigned * game.wages;
+        const laborCost = commodity.laborAssigned * game.wages;
+        game.capital -= laborCost;
+        game.laborSavings += laborCost;
         // TODO: Do something if wages are not payable
 
         // compute sales for each commodity
+        // TODO: Do something if laborSavings < commodityRevenue
         const leftover = commodity.inventory - commodity.demand;
         commodity.inventory = Math.max(0, leftover);
         if (leftover >= 0) {
-          game.capital += commodity.demand * commodity.price;
+          const commodityRevenue = commodity.demand * commodity.price;
+          game.capital += commodityRevenue;
+          game.laborSavings -= commodityRevenue;
         } else {
           // if leftover < 0, then leftover is the unfulfilled demand
-          game.capital += (commodity.demand + leftover) * commodity.price;
+          const commodityRevenue = (commodity.demand + leftover) * commodity.price;
+          game.capital += commodityRevenue;
+          game.laborSavings -= commodityRevenue;
         }
         // TODO: Do something if demand is not met
       }
@@ -34,7 +41,6 @@ const gameReducer = (game, action) => {
       let totalLabor = game.labor;
       game.commodities.forEach(c => totalLabor += c.laborAssigned);
       game.labor += config.laborGrowthRate(totalLabor)
-      // TODO: Do something if wages are less than total demand * price
 
       // TODO: compute demand based on price and labor
 

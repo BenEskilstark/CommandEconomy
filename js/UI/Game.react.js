@@ -44,14 +44,17 @@ function Info(props): React.Node {
 
   return (
     <InfoCard>
-      <div>Capital: {game.capital}</div>
+      <div>Capital: ${game.capital}</div>
       <div>Labor: {game.labor}</div>
       <div>
-        Wages: {game.wages}
+        Wages: ${game.wages}
         <Button label="Lower Wages" disabled={game.wages <= 0}
           onClick={() => dispatch({type: 'INCREMENT_WAGES', wageChange: -1})} />
         <Button label="Raise Wages"
           onClick={() => dispatch({type: 'INCREMENT_WAGES', wageChange: 1})} />
+      </div>
+      <div>
+        Labor's Savings: ${game.laborSavings}
       </div>
       <div>
         Unrest: {game.unrest}%
@@ -80,7 +83,7 @@ function Commodity(props): React.Node {
         />
       </div>
       <div>
-        Price: {commodity.price}
+        Price: ${commodity.price}
         <Button label="Lower Price"
           onClick={() => dispatch({type: 'INCREMENT_PRICE', priceChange: -1, name})}
           disabled={commodity.price <= 0}

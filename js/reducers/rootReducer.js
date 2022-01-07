@@ -62,6 +62,7 @@ const initGameState = () => {
     labor: config.labor,
     wages: config.wages,
     unrest: config.unrest,
+    laborSavings: config.laborSavings,
     people: [],
     time: 0,
   };

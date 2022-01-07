@@ -23,11 +23,15 @@ var config = {
   capital: 100,
   labor: 10,
   laborGrowthRate: function laborGrowthRate(n) {
+    if (n % 10 != 0) {
+      return 0;
+    }
     return Math.max(1, Math.floor(n * n * 0.001));
   },
 
   wages: 2,
-  unrest: 0
+  unrest: 0,
+  laborSavings: 10
 };
 
 module.exports = {
@@ -277,6 +281,7 @@ var initGameState = function initGameState() {
     labor: config.labor,
     wages: config.wages,
     unrest: config.unrest,
+    laborSavings: config.laborSavings,
     people: [],
     time: 0
   };
@@ -504,7 +509,7 @@ function Info(props) {
     React.createElement(
       'div',
       null,
-      'Capital: ',
+      'Capital: $',
       game.capital
     ),
     React.createElement(
@@ -516,7 +521,7 @@ function Info(props) {
     React.createElement(
       'div',
       null,
-      'Wages: ',
+      'Wages: $',
       game.wages,
       React.createElement(Button, { label: 'Lower Wages', disabled: game.wages <= 0,
         onClick: function onClick() {
@@ -526,6 +531,12 @@ function Info(props) {
         onClick: function onClick() {
           return dispatch({ type: 'INCREMENT_WAGES', wageChange: 1 });
         } })
+    ),
+    React.createElement(
+      'div',
+      null,
+      'Labor\'s Savings: $',
+      game.laborSavings
     ),
     React.createElement(
       'div',
@@ -582,7 +593,7 @@ function Commodity(props) {
     React.createElement(
       'div',
       null,
-      'Price: ',
+      'Price: $',
       commodity.price,
       React.createElement(Button, { label: 'Lower Price',
         onClick: function onClick() {
