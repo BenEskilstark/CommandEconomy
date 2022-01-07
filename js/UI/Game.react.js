@@ -45,7 +45,7 @@ function Info(props): React.Node {
   return (
     <InfoCard>
       <div>Capital: ${game.capital}</div>
-      <div>Labor: {game.labor}</div>
+      <div>Unassigned Labor: {game.labor}</div>
       <div>
         Wages: ${game.wages}
         <Button label="Lower Wages" disabled={game.wages <= 0}

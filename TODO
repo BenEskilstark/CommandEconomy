@@ -1,20 +1,15 @@
 
-- util for computing deficits with remainder
-
 - labor
   - function mapping price to demand for each commodity
 
 - unrest counter
-  - what happens when demand isn't met
-  - when labor doesn't have enough money
-  - when wages can't be paid
   - lose the game when unrest hits 100%
   - reduce productivity based on unrest
+  - can unrest go down?
 
 - additional commodities
   - button for producing additional types of commodities
   - make this growth necessary
-
 
 - how to indicate what is causing unrest/where the bottlenecks are
   - breakdown of what is contributing to unrest
@@ -24,8 +19,6 @@
 - costs for production?
 
 ./UI/Game.react.js:  // TODO: add button to pay to unlock next commodity
-./reducers/gameReducer.js:        // TODO: Do something if wages are not payable
-./reducers/gameReducer.js:        // TODO: Do something if demand is not met
-./reducers/gameReducer.js:      // TODO: Do something if wages are less than total demand * price
-./reducers/gameReducer.js:      // TODO: compute demand based on price and labor
+./reducers/gameReducer.js:        // TODO: compute demand based on price and labor
+./reducers/gameReducer.js:        // TODO: labor needs to get paid even when it is wiped out
 ./reducers/gameReducer.js:      // TODO compute next demand for commodity

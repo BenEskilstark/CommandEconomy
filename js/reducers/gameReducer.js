@@ -1,7 +1,9 @@
 // @flow
 
 const {config} = require('../config');
-const {getCommodity} = require('../selectors/selectors');
+const {
+  getCommodity, subtractWithDeficit,
+} = require('../selectors/selectors');
 
 const gameReducer = (game, action) => {
   switch (action.type) {
@@ -10,39 +12,70 @@ const gameReducer = (game, action) => {
 
       // commodities
       for (const commodity of game.commodities) {
-        // compute production of each commodity
-        const production = commodity.laborAssigned / commodity.laborRequired;
+        if (!commodity.unlocked) continue;
+
+        // TODO: compute demand based on price and labor
+
+        // compute WAGES for production
+        const laborCost = commodity.laborAssigned * game.wages;
+        const {result: nextCapital, deficit: laborCostDeficit} =
+          subtractWithDeficit(game.capital, laborCost);
+        game.capital = nextCapital;
+        game.laborSavings += (laborCost - laborCostDeficit);
+        // increase unrest if wages are not payable:
+        if (laborCostDeficit > 0) {
+          console.log("can't afford to pay labor", commodity.name, laborCostDeficit / laborCost);
+          game.unrest += laborCostDeficit / laborCost;
+        }
+
+        // compute PRODUCTION of each commodity based on who you can
+        // afford to pay
+        const production = Math.floor(
+          (commodity.laborAssigned - laborCostDeficit / game.wages)
+            / commodity.laborRequired
+        );
         commodity.inventory += production;
 
-        // compute wages for production
-        const laborCost = commodity.laborAssigned * game.wages;
-        game.capital -= laborCost;
-        game.laborSavings += laborCost;
-        // TODO: Do something if wages are not payable
-
-        // compute sales for each commodity
-        // TODO: Do something if laborSavings < commodityRevenue
-        const leftover = commodity.inventory - commodity.demand;
-        commodity.inventory = Math.max(0, leftover);
-        if (leftover >= 0) {
-          const commodityRevenue = commodity.demand * commodity.price;
-          game.capital += commodityRevenue;
-          game.laborSavings -= commodityRevenue;
-        } else {
-          // if leftover < 0, then leftover is the unfulfilled demand
-          const commodityRevenue = (commodity.demand + leftover) * commodity.price;
-          game.capital += commodityRevenue;
-          game.laborSavings -= commodityRevenue;
+        // compute SALES for each commodity
+        // sales depend both on inventory meeting demand AND labor
+        // having enough savings to afford the demand
+        const {
+          result: inventoryAfterDemand, // game.inventory set below since it
+                                        // also depends on labor savings
+          deficit: inventoryDeficit,
+          amount: demandMet,
+        } = subtractWithDeficit(commodity.inventory, commodity.demand);
+        // increase unrest if demand is not met:
+        if (inventoryDeficit > 0) {
+          console.log(
+            "inventory doesn't meet demand", commodity.name,
+            inventoryDeficit/commodity.demand,
+          );
+          game.unrest += inventoryDeficit / commodity.demand;
         }
-        // TODO: Do something if demand is not met
+        // LABOR SAVINGS
+        // TODO: labor needs to get paid even when it is wiped out
+        const {
+          result: nextLaborSavings, deficit: savingsDeficit, amount: revenue,
+        } = subtractWithDeficit(game.laborSavings, commodity.price * demandMet);
+        game.laborSavings = nextLaborSavings;
+        game.capital += revenue;
+        const inventorySold = Math.floor(revenue / commodity.price);
+        commodity.inventory -= inventorySold;
+        // increase unrest if labor can't afford demand
+        if (savingsDeficit > 0) {
+          console.log(
+            "labor can't afford demand", commodity.name,
+            savingsDeficit/(commodity.price*demandMet),
+          );
+          game.unrest += savingsDeficit / (commodity.price * demandMet);
+        }
       }
 
       // labor pool
       let totalLabor = game.labor;
       game.commodities.forEach(c => totalLabor += c.laborAssigned);
       game.labor += config.laborGrowthRate(totalLabor)
-
-      // TODO: compute demand based on price and labor
 
       return game;
     }

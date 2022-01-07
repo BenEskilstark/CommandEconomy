@@ -29,7 +29,7 @@ var config = {
     return Math.max(1, Math.floor(n * n * 0.001));
   },
 
-  wages: 2,
+  wages: 10,
   unrest: 0,
   laborSavings: 10
 };
@@ -73,7 +73,8 @@ var _require = require('../config'),
     config = _require.config;
 
 var _require2 = require('../selectors/selectors'),
-    getCommodity = _require2.getCommodity;
+    getCommodity = _require2.getCommodity,
+    subtractWithDeficit = _require2.subtractWithDeficit;
 
 var gameReducer = function gameReducer(game, action) {
   switch (action.type) {
@@ -90,24 +91,62 @@ var gameReducer = function gameReducer(game, action) {
           for (var _iterator = game.commodities[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var commodity = _step.value;
 
-            // compute production of each commodity
-            var production = commodity.laborAssigned / commodity.laborRequired;
+            if (!commodity.unlocked) continue;
+
+            // TODO: compute demand based on price and labor
+
+            // compute WAGES for production
+            var laborCost = commodity.laborAssigned * game.wages;
+
+            var _subtractWithDeficit = subtractWithDeficit(game.capital, laborCost),
+                nextCapital = _subtractWithDeficit.result,
+                laborCostDeficit = _subtractWithDeficit.deficit;
+
+            game.capital = nextCapital;
+            game.laborSavings += laborCost - laborCostDeficit;
+            // increase unrest if wages are not payable:
+            if (laborCostDeficit > 0) {
+              console.log("can't afford to pay labor", commodity.name, laborCostDeficit / laborCost);
+              game.unrest += laborCostDeficit / laborCost;
+            }
+
+            // compute PRODUCTION of each commodity based on who you can
+            // afford to pay
+            var production = Math.floor((commodity.laborAssigned - laborCostDeficit / game.wages) / commodity.laborRequired);
             commodity.inventory += production;
 
-            // compute wages for production
-            game.capital -= commodity.laborAssigned * game.wages;
-            // TODO: Do something if wages are not payable
+            // compute SALES for each commodity
+            // sales depend both on inventory meeting demand AND labor
+            // having enough savings to afford the demand
 
-            // compute sales for each commodity
-            var leftover = commodity.inventory - commodity.demand;
-            commodity.inventory = Math.max(0, leftover);
-            if (leftover >= 0) {
-              game.capital += commodity.demand * commodity.price;
-            } else {
-              // if leftover < 0, then leftover is the unfulfilled demand
-              game.capital += (commodity.demand + leftover) * commodity.price;
+            var _subtractWithDeficit2 = subtractWithDeficit(commodity.inventory, commodity.demand),
+                inventoryAfterDemand = _subtractWithDeficit2.result,
+                inventoryDeficit = _subtractWithDeficit2.deficit,
+                demandMet = _subtractWithDeficit2.amount;
+            // increase unrest if demand is not met:
+
+
+            if (inventoryDeficit > 0) {
+              console.log("inventory doesn't meet demand", commodity.name, inventoryDeficit / commodity.demand);
+              game.unrest += inventoryDeficit / commodity.demand;
             }
-            // TODO: Do something if demand is not met
+            // LABOR SAVINGS
+            // TODO: labor needs to get paid even when it is wiped out
+
+            var _subtractWithDeficit3 = subtractWithDeficit(game.laborSavings, commodity.price * demandMet),
+                nextLaborSavings = _subtractWithDeficit3.result,
+                savingsDeficit = _subtractWithDeficit3.deficit,
+                revenue = _subtractWithDeficit3.amount;
+
+            game.laborSavings = nextLaborSavings;
+            game.capital += revenue;
+            var inventorySold = Math.floor(revenue / commodity.price);
+            commodity.inventory -= inventorySold;
+            // increase unrest if labor can't afford demand
+            if (savingsDeficit > 0) {
+              console.log("labor can't afford demand", commodity.name, savingsDeficit / (commodity.price * demandMet));
+              game.unrest += savingsDeficit / (commodity.price * demandMet);
+            }
           }
 
           // labor pool
@@ -131,9 +170,6 @@ var gameReducer = function gameReducer(game, action) {
           return totalLabor += c.laborAssigned;
         });
         game.labor += config.laborGrowthRate(totalLabor);
-        // TODO: Do something if wages are less than total demand * price
-
-        // TODO: compute demand based on price and labor
 
         return game;
       }
@@ -323,8 +359,28 @@ var getCommodity = function getCommodity(game, name) {
   return null;
 };
 
+// when you want to do A - B, but A must always be >= 0, and you need
+// to do something different if B > A, then use this function.
+// Returns a {result, deficit, amount} tuple where
+// - result is the new value of A after the subtraction, but always >= 0
+// - deficit is the leftover value if B > A
+// - amount is how much of operandB successfully subtracted
+//    (will either equal operandB if deficit = 0 or operandA otherwise)
+var subtractWithDeficit = function subtractWithDeficit(operandA, operandB) {
+  var result = operandA - operandB;
+  var amount = operandB;
+  var deficit = 0;
+  if (result < 0) {
+    deficit = -1 * result;
+    amount = operandA;
+    result = 0;
+  }
+  return { result: result, deficit: deficit, amount: amount };
+};
+
 module.exports = {
-  getCommodity: getCommodity
+  getCommodity: getCommodity,
+  subtractWithDeficit: subtractWithDeficit
 };
 },{}],7:[function(require,module,exports){
 'use strict';
@@ -515,7 +571,7 @@ function Info(props) {
     React.createElement(
       'div',
       null,
-      'Labor: ',
+      'Unassigned Labor: ',
       game.labor
     ),
     React.createElement(
