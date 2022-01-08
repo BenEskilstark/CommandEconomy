@@ -16,9 +16,9 @@
   - ticker item whenever unrest is being generated?
 
 - ticks on a timer
+- how to handle the fact that money is zero-sum?
 - costs for production?
 
 ./UI/Game.react.js:  // TODO: add button to pay to unlock next commodity
 ./reducers/gameReducer.js:        // TODO: compute demand based on price and labor
-./reducers/gameReducer.js:        // TODO: labor needs to get paid even when it is wiped out
 ./reducers/gameReducer.js:      // TODO compute next demand for commodity

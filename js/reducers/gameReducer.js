@@ -19,7 +19,7 @@ const gameReducer = (game, action) => {
         // compute WAGES for production
         const laborCost = commodity.laborAssigned * game.wages;
         const {result: nextCapital, deficit: laborCostDeficit} =
-          subtractWithDeficit(game.capital, laborCost);
+          subtractWithDeficit(game.capital, laborCost, game.wages /*step*/);
         game.capital = nextCapital;
         game.laborSavings += (laborCost - laborCostDeficit);
         // increase unrest if wages are not payable:
@@ -54,10 +54,12 @@ const gameReducer = (game, action) => {
           game.unrest += inventoryDeficit / commodity.demand;
         }
         // LABOR SAVINGS
-        // TODO: labor needs to get paid even when it is wiped out
         const {
           result: nextLaborSavings, deficit: savingsDeficit, amount: revenue,
-        } = subtractWithDeficit(game.laborSavings, commodity.price * demandMet);
+        } = subtractWithDeficit(
+          game.laborSavings, commodity.price * demandMet,
+          commodity.price /* step */
+        );
         game.laborSavings = nextLaborSavings;
         game.capital += revenue;
         const inventorySold = Math.floor(revenue / commodity.price);
