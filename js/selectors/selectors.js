@@ -10,6 +10,14 @@ const getCommodity = (game: Game, name: string): Commodity => {
   return null;
 };
 
+const totalPopulation = (game: Game): number => {
+  let total = game.labor;
+  for (const commodity of game.commodities) {
+    total += commodity.laborAssigned;
+  }
+  return total;
+};
+
 // when you want to do A - B, but A must always be >= 0, and you need
 // to do something different if B > A, then use this function.
 // Returns a {result, deficit, amount} tuple where
@@ -47,4 +55,5 @@ const subtractWithDeficit = (operandA, operandB, step) => {
 module.exports = {
   getCommodity,
   subtractWithDeficit,
+  totalPopulation,
 };

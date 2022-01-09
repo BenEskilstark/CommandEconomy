@@ -2,11 +2,31 @@
 
 const {config} = require('../config');
 const {
-  getCommodity, subtractWithDeficit,
+  getCommodity, subtractWithDeficit, totalPopulation,
 } = require('../selectors/selectors');
 
 const gameReducer = (game, action) => {
   switch (action.type) {
+    case 'START_TICK': {
+      if (game != null && game.tickInterval != null) {
+        return game;
+      }
+      game.prevTickTime = new Date().getTime();
+      return {
+        ...game,
+        tickInterval: setInterval(
+          // HACK: store is only available via window
+          () => store.dispatch({type: 'TICK'}),
+          config.msPerTick,
+        ),
+      };
+    }
+    case 'STOP_TICK': {
+      clearInterval(game.tickInterval);
+      game.tickInterval = null;
+
+      return game;
+    }
     case 'TICK': {
       game.time += 1;
 
@@ -14,7 +34,8 @@ const gameReducer = (game, action) => {
       for (const commodity of game.commodities) {
         if (!commodity.unlocked) continue;
 
-        // TODO: compute demand based on price and labor
+        // compute DEMAND based on price and labor
+        commodity.demand = commodity.demandFn(commodity.price, totalPopulation(game));
 
         // compute WAGES for production
         const laborCost = commodity.laborAssigned * game.wages;
@@ -24,7 +45,7 @@ const gameReducer = (game, action) => {
         game.laborSavings += (laborCost - laborCostDeficit);
         // increase unrest if wages are not payable:
         if (laborCostDeficit > 0) {
-          console.log("can't afford to pay labor", commodity.name, laborCostDeficit / laborCost);
+          console.log("can't afford to pay labor for", commodity.name, laborCostDeficit / laborCost);
           game.unrest += laborCostDeficit / laborCost;
         }
 
@@ -48,7 +69,7 @@ const gameReducer = (game, action) => {
         // increase unrest if demand is not met:
         if (inventoryDeficit > 0) {
           console.log(
-            "inventory doesn't meet demand", commodity.name,
+            "inventory doesn't meet demand for ", commodity.name,
             inventoryDeficit/commodity.demand,
           );
           game.unrest += inventoryDeficit / commodity.demand;
@@ -67,7 +88,7 @@ const gameReducer = (game, action) => {
         // increase unrest if labor can't afford demand
         if (savingsDeficit > 0) {
           console.log(
-            "labor can't afford demand", commodity.name,
+            "labor can't afford demand for", commodity.name,
             savingsDeficit/(commodity.price*demandMet),
           );
           game.unrest += savingsDeficit / (commodity.price * demandMet);
@@ -90,7 +111,7 @@ const gameReducer = (game, action) => {
       const {name, priceChange} = action;
       const commodity = getCommodity(game, name);
       commodity.price += priceChange;
-      // TODO compute next demand for commodity
+      commodity.demand = commodity.demandFn(commodity.price, totalPopulation(game));
 
       return game;
     }

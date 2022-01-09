@@ -1,6 +1,8 @@
 
-- labor
-  - function mapping price to demand for each commodity
+- bugs
+  - something is not cash zero-sum, and total money supply goes down
+    - perhaps when labor can't afford something?
+    - actually maybe not?
 
 - unrest counter
   - lose the game when unrest hits 100%
@@ -10,15 +12,13 @@
 - additional commodities
   - button for producing additional types of commodities
   - make this growth necessary
+  - recompute demand right when a commodity is unlocked
 
 - how to indicate what is causing unrest/where the bottlenecks are
   - breakdown of what is contributing to unrest
   - ticker item whenever unrest is being generated?
 
-- ticks on a timer
 - how to handle the fact that money is zero-sum?
 - costs for production?
 
 ./UI/Game.react.js:  // TODO: add button to pay to unlock next commodity
-./reducers/gameReducer.js:        // TODO: compute demand based on price and labor
-./reducers/gameReducer.js:      // TODO compute next demand for commodity

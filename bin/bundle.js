@@ -2,6 +2,8 @@
 'use strict';
 
 var config = {
+  msPerTick: 2500,
+
   commodities: [{
     name: 'Bread',
     laborRequired: 0.1,
@@ -9,6 +11,9 @@ var config = {
     price: 1,
     inventory: 0,
     demand: 1,
+    demandFn: function demandFn(cost, population) {
+      return population;
+    },
     unlocked: true
   }, {
     name: 'Shirts',
@@ -17,6 +22,9 @@ var config = {
     price: 1,
     inventory: 0,
     demand: 1,
+    demandFn: function demandFn(cost, population) {
+      return population;
+    },
     unlocked: false
   }],
 
@@ -69,15 +77,39 @@ function renderUI(store) {
 },{"./reducers/rootReducer":5,"./ui/Main.react":10,"react":21,"react-dom":18,"redux":22}],3:[function(require,module,exports){
 'use strict';
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _require = require('../config'),
     config = _require.config;
 
 var _require2 = require('../selectors/selectors'),
     getCommodity = _require2.getCommodity,
-    subtractWithDeficit = _require2.subtractWithDeficit;
+    subtractWithDeficit = _require2.subtractWithDeficit,
+    totalPopulation = _require2.totalPopulation;
 
 var gameReducer = function gameReducer(game, action) {
   switch (action.type) {
+    case 'START_TICK':
+      {
+        if (game != null && game.tickInterval != null) {
+          return game;
+        }
+        game.prevTickTime = new Date().getTime();
+        return _extends({}, game, {
+          tickInterval: setInterval(
+          // HACK: store is only available via window
+          function () {
+            return store.dispatch({ type: 'TICK' });
+          }, config.msPerTick)
+        });
+      }
+    case 'STOP_TICK':
+      {
+        clearInterval(game.tickInterval);
+        game.tickInterval = null;
+
+        return game;
+      }
     case 'TICK':
       {
         game.time += 1;
@@ -93,7 +125,8 @@ var gameReducer = function gameReducer(game, action) {
 
             if (!commodity.unlocked) continue;
 
-            // TODO: compute demand based on price and labor
+            // compute DEMAND based on price and labor
+            commodity.demand = commodity.demandFn(commodity.price, totalPopulation(game));
 
             // compute WAGES for production
             var laborCost = commodity.laborAssigned * game.wages;
@@ -106,7 +139,7 @@ var gameReducer = function gameReducer(game, action) {
             game.laborSavings += laborCost - laborCostDeficit;
             // increase unrest if wages are not payable:
             if (laborCostDeficit > 0) {
-              console.log("can't afford to pay labor", commodity.name, laborCostDeficit / laborCost);
+              console.log("can't afford to pay labor for", commodity.name, laborCostDeficit / laborCost);
               game.unrest += laborCostDeficit / laborCost;
             }
 
@@ -127,7 +160,7 @@ var gameReducer = function gameReducer(game, action) {
 
 
             if (inventoryDeficit > 0) {
-              console.log("inventory doesn't meet demand", commodity.name, inventoryDeficit / commodity.demand);
+              console.log("inventory doesn't meet demand for ", commodity.name, inventoryDeficit / commodity.demand);
               game.unrest += inventoryDeficit / commodity.demand;
             }
             // LABOR SAVINGS
@@ -144,7 +177,7 @@ var gameReducer = function gameReducer(game, action) {
             commodity.inventory -= inventorySold;
             // increase unrest if labor can't afford demand
             if (savingsDeficit > 0) {
-              console.log("labor can't afford demand", commodity.name, savingsDeficit / (commodity.price * demandMet));
+              console.log("labor can't afford demand for", commodity.name, savingsDeficit / (commodity.price * demandMet));
               game.unrest += savingsDeficit / (commodity.price * demandMet);
             }
           }
@@ -187,7 +220,7 @@ var gameReducer = function gameReducer(game, action) {
 
         var _commodity = getCommodity(game, name);
         _commodity.price += priceChange;
-        // TODO compute next demand for commodity
+        _commodity.demand = _commodity.demandFn(_commodity.price, totalPopulation(game));
 
         return game;
       }
@@ -258,6 +291,9 @@ var _require3 = require('../config'),
 var _require4 = require('../utils/helpers'),
     deepCopy = _require4.deepCopy;
 
+var _require5 = require('../selectors/selectors'),
+    totalPopulation = _require5.totalPopulation;
+
 var rootReducer = function rootReducer(state, action) {
   if (state === undefined) return initState();
 
@@ -276,11 +312,11 @@ var rootReducer = function rootReducer(state, action) {
       {
         var _screen = action.screen;
 
-        var _nextState = _extends({}, state, { screen: _screen });
+        var nextState = _extends({}, state, { screen: _screen });
         if (_screen == 'LOBBY') {
-          _nextState.game = null;
+          nextState.game = null;
         }
-        return _nextState;
+        return nextState;
       }
     case 'SET_MODAL':
     case 'DISMISS_MODAL':
@@ -288,6 +324,8 @@ var rootReducer = function rootReducer(state, action) {
     case 'INCREMENT_PRICE':
     case 'INCREMENT_LABOR':
     case 'INCREMENT_WAGES':
+    case 'START_TICK':
+    case 'STOP_TICK':
     case 'TICK':
       {
         if (!state.game) return state;
@@ -296,7 +334,7 @@ var rootReducer = function rootReducer(state, action) {
         });
       }
   }
-  return nextState;
+  return state;
 };
 
 //////////////////////////////////////
@@ -309,7 +347,7 @@ var initState = function initState() {
 };
 
 var initGameState = function initGameState() {
-  return {
+  var game = {
     commodities: config.commodities.map(function (c) {
       return deepCopy(c);
     }),
@@ -321,10 +359,37 @@ var initGameState = function initGameState() {
     people: [],
     time: 0
   };
+
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = game.commodities[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var commodity = _step.value;
+
+      commodity.demand = commodity.demandFn(commodity.price, totalPopulation(game));
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return game;
 };
 
 module.exports = { rootReducer: rootReducer };
-},{"../config":1,"../utils/helpers":12,"./gameReducer":3,"./modalReducer":4}],6:[function(require,module,exports){
+},{"../config":1,"../selectors/selectors":6,"../utils/helpers":12,"./gameReducer":3,"./modalReducer":4}],6:[function(require,module,exports){
 "use strict";
 
 var getCommodity = function getCommodity(game, name) {
@@ -357,6 +422,36 @@ var getCommodity = function getCommodity(game, name) {
 
   console.error("no commodity named", name);
   return null;
+};
+
+var totalPopulation = function totalPopulation(game) {
+  var total = game.labor;
+  var _iteratorNormalCompletion2 = true;
+  var _didIteratorError2 = false;
+  var _iteratorError2 = undefined;
+
+  try {
+    for (var _iterator2 = game.commodities[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+      var commodity = _step2.value;
+
+      total += commodity.laborAssigned;
+    }
+  } catch (err) {
+    _didIteratorError2 = true;
+    _iteratorError2 = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion2 && _iterator2.return) {
+        _iterator2.return();
+      }
+    } finally {
+      if (_didIteratorError2) {
+        throw _iteratorError2;
+      }
+    }
+  }
+
+  return total;
 };
 
 // when you want to do A - B, but A must always be >= 0, and you need
@@ -393,7 +488,8 @@ var subtractWithDeficit = function subtractWithDeficit(operandA, operandB, step)
 
 module.exports = {
   getCommodity: getCommodity,
-  subtractWithDeficit: subtractWithDeficit
+  subtractWithDeficit: subtractWithDeficit,
+  totalPopulation: totalPopulation
 };
 },{}],7:[function(require,module,exports){
 'use strict';
@@ -519,6 +615,9 @@ var InfoCard = require('./Components/InfoCard.react');
 var _require = require('../utils/display'),
     displayMoney = _require.displayMoney;
 
+var _require2 = require('../selectors/selectors'),
+    totalPopulation = _require2.totalPopulation;
+
 function Game(props) {
   var state = props.state,
       dispatch = props.dispatch;
@@ -585,7 +684,9 @@ function Info(props) {
       'div',
       null,
       'Unassigned Labor: ',
-      game.labor
+      game.labor,
+      ' / ',
+      totalPopulation(game)
     ),
     React.createElement(
       'div',
@@ -692,7 +793,7 @@ function Commodity(props) {
 }
 
 module.exports = Game;
-},{"../utils/display":11,"./Components/Button.react":7,"./Components/InfoCard.react":8,"react":21}],10:[function(require,module,exports){
+},{"../selectors/selectors":6,"../utils/display":11,"./Components/Button.react":7,"./Components/InfoCard.react":8,"react":21}],10:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -727,6 +828,7 @@ function Lobby(props) {
       label: 'Play',
       onClick: function onClick() {
         props.dispatch({ type: 'START', screen: 'GAME' });
+        // props.dispatch({type: 'START_TICK'});
       }
     })
   );

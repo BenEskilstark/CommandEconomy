@@ -1,6 +1,8 @@
 // @flow
 
 const config = {
+  msPerTick: 2500,
+
   commodities: [
     {
       name: 'Bread',
@@ -9,6 +11,9 @@ const config = {
       price: 1,
       inventory: 0,
       demand: 1,
+      demandFn: (cost, population) => {
+        return population;
+      },
       unlocked: true,
     },
     {
@@ -18,6 +23,9 @@ const config = {
       price: 1,
       inventory: 0,
       demand: 1,
+      demandFn: (cost, population) => {
+        return population;
+      },
       unlocked: false,
     },
   ],

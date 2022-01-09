@@ -4,6 +4,7 @@ const {gameReducer} = require('./gameReducer');
 const {modalReducer} = require('./modalReducer');
 const {config} = require('../config');
 const {deepCopy} = require('../utils/helpers');
+const {totalPopulation} = require('../selectors/selectors');
 
 import type {State, Action} from '../types';
 
@@ -34,6 +35,8 @@ const rootReducer = (state: State, action: Action): State => {
     case 'INCREMENT_PRICE':
     case 'INCREMENT_LABOR':
     case 'INCREMENT_WAGES':
+    case 'START_TICK':
+    case 'STOP_TICK':
     case 'TICK': {
       if (!state.game) return state;
       return {
@@ -42,7 +45,7 @@ const rootReducer = (state: State, action: Action): State => {
       };
     }
   }
-  return nextState;
+  return state;
 };
 
 
@@ -56,7 +59,7 @@ const initState = () => {
 }
 
 const initGameState = () => {
-  return {
+  const game = {
     commodities: config.commodities.map(c => deepCopy(c)),
     capital: config.capital,
     labor: config.labor,
@@ -66,6 +69,12 @@ const initGameState = () => {
     people: [],
     time: 0,
   };
+
+  for (const commodity of game.commodities) {
+    commodity.demand = commodity.demandFn(commodity.price, totalPopulation(game));
+  }
+
+  return game;
 }
 
 module.exports = {rootReducer};

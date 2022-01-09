@@ -4,6 +4,7 @@ const React = require('react');
 const Button = require('./Components/Button.react');
 const InfoCard = require('./Components/InfoCard.react');
 const {displayMoney} = require('../utils/display');
+const {totalPopulation} = require('../selectors/selectors');
 
 import type {State, Action} from '../types';
 
@@ -45,7 +46,7 @@ function Info(props): React.Node {
   return (
     <InfoCard>
       <div>Capital: ${game.capital}</div>
-      <div>Unassigned Labor: {game.labor}</div>
+      <div>Unassigned Labor: {game.labor} / {totalPopulation(game)}</div>
       <div>
         Wages: ${game.wages}
         <Button label="Lower Wages" disabled={game.wages <= 0}

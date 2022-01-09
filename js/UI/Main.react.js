@@ -38,6 +38,7 @@ function Lobby(props): React.Node {
         label="Play"
         onClick={() => {
           props.dispatch({type: 'START', screen: 'GAME'});
+          // props.dispatch({type: 'START_TICK'});
         }}
       />
     </div>
