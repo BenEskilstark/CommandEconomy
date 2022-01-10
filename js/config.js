@@ -1,7 +1,7 @@
 // @flow
 
 const config = {
-  msPerTick: 2500,
+  msPerTick: 500,
 
   commodities: [
     {
@@ -12,28 +12,32 @@ const config = {
       inventory: 0,
       demand: 1,
       demandFn: (cost, population) => {
+        if (cost <= 5) {
+          return population * (6 - cost);
+        }
+
         return population;
       },
       unlocked: true,
     },
     {
       name: 'Shirts',
-      laborRequired: 0.1,
+      laborRequired: 1,
       laborAssigned: 0,
       price: 1,
       inventory: 0,
       demand: 1,
       demandFn: (cost, population) => {
-        return population;
+        return Math.floor(population / cost);
       },
-      unlocked: false,
+      unlocked: true,
     },
   ],
 
-  capital: 100,
+  capital: 1000,
   labor: 10,
   laborGrowthRate: (n) => {
-    if (n % 10 != 0) {
+    if (n % 10 != 0 || n == 0) {
       return 0;
     }
     return Math.max(1, Math.floor(n * n * 0.001))
@@ -41,7 +45,7 @@ const config = {
 
   wages: 10,
   unrest: 0,
-  laborSavings: 10,
+  laborSavings: 50,
 };
 
 module.exports = {

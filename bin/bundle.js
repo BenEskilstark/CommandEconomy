@@ -2,7 +2,7 @@
 'use strict';
 
 var config = {
-  msPerTick: 2500,
+  msPerTick: 500,
 
   commodities: [{
     name: 'Bread',
@@ -12,26 +12,30 @@ var config = {
     inventory: 0,
     demand: 1,
     demandFn: function demandFn(cost, population) {
+      if (cost <= 5) {
+        return population * (6 - cost);
+      }
+
       return population;
     },
     unlocked: true
   }, {
     name: 'Shirts',
-    laborRequired: 0.1,
+    laborRequired: 1,
     laborAssigned: 0,
     price: 1,
     inventory: 0,
     demand: 1,
     demandFn: function demandFn(cost, population) {
-      return population;
+      return Math.floor(population / cost);
     },
-    unlocked: false
+    unlocked: true
   }],
 
-  capital: 100,
+  capital: 1000,
   labor: 10,
   laborGrowthRate: function laborGrowthRate(n) {
-    if (n % 10 != 0) {
+    if (n % 10 != 0 || n == 0) {
       return 0;
     }
     return Math.max(1, Math.floor(n * n * 0.001));
@@ -39,7 +43,7 @@ var config = {
 
   wages: 10,
   unrest: 0,
-  laborSavings: 10
+  laborSavings: 50
 };
 
 module.exports = {
@@ -693,11 +697,11 @@ function Info(props) {
       null,
       'Wages: $',
       game.wages,
-      React.createElement(Button, { label: 'Lower Wages', disabled: game.wages <= 0,
+      React.createElement(Button, { label: 'Lower', disabled: game.wages <= 0,
         onClick: function onClick() {
           return dispatch({ type: 'INCREMENT_WAGES', wageChange: -1 });
         } }),
-      React.createElement(Button, { label: 'Raise Wages',
+      React.createElement(Button, { label: 'Raise',
         onClick: function onClick() {
           return dispatch({ type: 'INCREMENT_WAGES', wageChange: 1 });
         } })
@@ -712,12 +716,19 @@ function Info(props) {
       'div',
       null,
       'Unrest: ',
-      game.unrest,
+      game.unrest.toFixed(2),
       '%'
     ),
-    React.createElement(Button, { label: 'Step Simulation', onClick: function onClick() {
-        return dispatch({ type: 'TICK' });
-      } })
+    React.createElement(Button, {
+      label: game.tickInterval ? 'Pause Simulation' : 'Start Simulation',
+      onClick: function onClick() {
+        if (game.tickInterval) {
+          dispatch({ type: 'STOP_TICK' });
+        } else {
+          dispatch({ type: 'START_TICK' });
+        }
+      }
+    })
   );
 }
 
@@ -747,13 +758,13 @@ function Commodity(props) {
       null,
       'Labor Assigned: ',
       commodity.laborAssigned,
-      React.createElement(Button, { label: 'Unassign Labor',
+      React.createElement(Button, { label: 'Unassign',
         onClick: function onClick() {
           return dispatch({ type: 'INCREMENT_LABOR', laborChange: -1, name: name });
         },
         disabled: commodity.laborAssigned <= 0
       }),
-      React.createElement(Button, { label: 'Assign Labor',
+      React.createElement(Button, { label: 'Assign',
         onClick: function onClick() {
           return dispatch({ type: 'INCREMENT_LABOR', laborChange: 1, name: name });
         },
@@ -765,13 +776,13 @@ function Commodity(props) {
       null,
       'Price: $',
       commodity.price,
-      React.createElement(Button, { label: 'Lower Price',
+      React.createElement(Button, { label: 'Lower',
         onClick: function onClick() {
           return dispatch({ type: 'INCREMENT_PRICE', priceChange: -1, name: name });
         },
         disabled: commodity.price <= 0
       }),
-      React.createElement(Button, { label: 'Raise Price',
+      React.createElement(Button, { label: 'Raise',
         onClick: function onClick() {
           return dispatch({ type: 'INCREMENT_PRICE', priceChange: 1, name: name });
         }

@@ -1,24 +1,27 @@
 
 - bugs
-  - something is not cash zero-sum, and total money supply goes down
-    - perhaps when labor can't afford something?
-    - actually maybe not?
+  - inventory goes to NaN when a price is set to 0
+  - population won't increase beyond 11
+  - can't assign last worker to commodities
 
 - unrest counter
   - lose the game when unrest hits 100%
-  - reduce productivity based on unrest
-  - can unrest go down?
 
-- additional commodities
+- additional content
   - button for producing additional types of commodities
   - make this growth necessary
   - recompute demand right when a commodity is unlocked
+  - tune capital values
+  - tune demand values
 
 - how to indicate what is causing unrest/where the bottlenecks are
   - breakdown of what is contributing to unrest
   - ticker item whenever unrest is being generated?
 
-- how to handle the fact that money is zero-sum?
-- costs for production?
+- maybe?
+  - reduce productivity based on unrest?
+  - can unrest go down?
+  - how to handle the fact that money is zero-sum?
+  - costs for production?
 
 ./UI/Game.react.js:  // TODO: add button to pay to unlock next commodity

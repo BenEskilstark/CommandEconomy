@@ -49,18 +49,27 @@ function Info(props): React.Node {
       <div>Unassigned Labor: {game.labor} / {totalPopulation(game)}</div>
       <div>
         Wages: ${game.wages}
-        <Button label="Lower Wages" disabled={game.wages <= 0}
+        <Button label="Lower" disabled={game.wages <= 0}
           onClick={() => dispatch({type: 'INCREMENT_WAGES', wageChange: -1})} />
-        <Button label="Raise Wages"
+        <Button label="Raise"
           onClick={() => dispatch({type: 'INCREMENT_WAGES', wageChange: 1})} />
       </div>
       <div>
         Labor's Savings: ${game.laborSavings}
       </div>
       <div>
-        Unrest: {game.unrest}%
+        Unrest: {game.unrest.toFixed(2)}%
       </div>
-      <Button label="Step Simulation" onClick={() => dispatch({type: 'TICK'})} />
+      <Button
+        label={game.tickInterval ? 'Pause Simulation' : 'Start Simulation'}
+        onClick={() => {
+          if (game.tickInterval) {
+            dispatch({type: 'STOP_TICK'});
+          } else {
+            dispatch({type: 'START_TICK'});
+          }
+        }}
+      />
     </InfoCard>
   );
 }
@@ -74,22 +83,22 @@ function Commodity(props): React.Node {
       <div>Labor Required: {commodity.laborRequired}</div>
       <div>
         Labor Assigned: {commodity.laborAssigned}
-        <Button label="Unassign Labor"
+        <Button label="Unassign"
           onClick={() => dispatch({type: 'INCREMENT_LABOR', laborChange: -1, name})}
           disabled={commodity.laborAssigned <= 0}
         />
-        <Button label="Assign Labor"
+        <Button label="Assign"
           onClick={() => dispatch({type: 'INCREMENT_LABOR', laborChange: 1, name})}
           disabled={game.labor <= 0}
         />
       </div>
       <div>
         Price: ${commodity.price}
-        <Button label="Lower Price"
+        <Button label="Lower"
           onClick={() => dispatch({type: 'INCREMENT_PRICE', priceChange: -1, name})}
           disabled={commodity.price <= 0}
         />
-        <Button label="Raise Price"
+        <Button label="Raise"
           onClick={() => dispatch({type: 'INCREMENT_PRICE', priceChange: 1, name})}
         />
       </div>
