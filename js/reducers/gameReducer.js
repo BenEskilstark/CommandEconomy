@@ -45,7 +45,10 @@ const gameReducer = (game, action) => {
         game.laborSavings += (laborCost - laborCostDeficit);
         // increase unrest if wages are not payable:
         if (laborCostDeficit > 0) {
-          console.log("can't afford to pay labor for", commodity.name, laborCostDeficit / laborCost);
+          console.log(
+            "can't afford to pay labor for",
+            commodity.name, laborCostDeficit / laborCost,
+          );
           game.unrest += laborCostDeficit / laborCost;
         }
 
@@ -84,7 +87,11 @@ const gameReducer = (game, action) => {
         game.laborSavings = nextLaborSavings;
         game.capital += revenue;
         const inventorySold = Math.floor(revenue / commodity.price);
-        commodity.inventory -= inventorySold;
+        if (commodity.price == 0) {
+          commodity.inventory = Math.max(0, commodity.inventory - commodity.demand);
+        } else {
+          commodity.inventory -= inventorySold;
+        }
         // increase unrest if labor can't afford demand
         if (savingsDeficit > 0) {
           console.log(
@@ -98,7 +105,7 @@ const gameReducer = (game, action) => {
       // labor pool
       let totalLabor = game.labor;
       game.commodities.forEach(c => totalLabor += c.laborAssigned);
-      game.labor += config.laborGrowthRate(totalLabor)
+      game.labor += config.laborGrowthRate(totalLabor, game.time)
 
       return game;
     }
@@ -119,12 +126,12 @@ const gameReducer = (game, action) => {
       const {name, laborChange} = action;
       const commodity = getCommodity(game, name);
       if (laborChange < 0) { // unassigning labor
-        if (commodity.laborAssigned > laborChange) {
+        if (commodity.laborAssigned >= laborChange) {
           commodity.laborAssigned += laborChange;
           game.labor -= laborChange;
         }
       } else { // assigning labor
-        if (game.labor > laborChange) {
+        if (game.labor >= laborChange) {
           commodity.laborAssigned += laborChange;
           game.labor -= laborChange;
         }

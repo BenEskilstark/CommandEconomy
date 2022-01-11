@@ -13,10 +13,10 @@ const config = {
       demand: 1,
       demandFn: (cost, population) => {
         if (cost <= 5) {
-          return population * (6 - cost);
+          return 2 * population * (6 - cost);
         }
 
-        return population;
+        return 2 * population;
       },
       unlocked: true,
     },
@@ -28,19 +28,47 @@ const config = {
       inventory: 0,
       demand: 1,
       demandFn: (cost, population) => {
-        return Math.floor(population / cost);
+        let adjCost = cost > 0 ? cost : 0.01;
+        return Math.max(1, Math.floor(population / adjCost));
       },
       unlocked: true,
+    },
+    {
+      name: 'Pants',
+      laborRequired: 2,
+      laborAssigned: 0,
+      price: 2,
+      inventory: 0,
+      demand: 1,
+      demandFn: (cost, population) => {
+        let adjCost = cost > 0 ? cost : 0.01;
+        return Math.max(1, Math.floor(population / adjCost));
+      },
+      unlocked: true,
+    },
+    {
+      name: 'Pocket Watches',
+      laborRequired: 5,
+      laborAssigned: 0,
+      price: 5,
+      inventory: 0,
+      demand: 1,
+      demandFn: (cost, population) => {
+        return 1;
+      },
+      unlocked: false,
     },
   ],
 
   capital: 1000,
   labor: 10,
-  laborGrowthRate: (n) => {
-    if (n % 10 != 0 || n == 0) {
+  laborGrowthRate: (pop, time) => {
+    console.log("in laborGrowthRate");
+    if (time % 10 != 0) {
+      console.log("returning 0", pop);
       return 0;
     }
-    return Math.max(1, Math.floor(n * n * 0.001))
+    return Math.max(1, Math.floor(pop * pop * 0.001))
   },
 
   wages: 10,

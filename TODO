@@ -1,13 +1,13 @@
 
 - bugs
-  - inventory goes to NaN when a price is set to 0
-  - population won't increase beyond 11
-  - can't assign last worker to commodities
+  - lowering price of bread increases demand so much that people can't
+    afford it
 
 - unrest counter
   - lose the game when unrest hits 100%
 
 - additional content
+  - handle demand < 1 selling something only every couple turns
   - button for producing additional types of commodities
   - make this growth necessary
   - recompute demand right when a commodity is unlocked
@@ -15,7 +15,7 @@
   - tune demand values
 
 - how to indicate what is causing unrest/where the bottlenecks are
-  - breakdown of what is contributing to unrest
+  - color numbers red that are decreasing?
   - ticker item whenever unrest is being generated?
 
 - maybe?
@@ -23,5 +23,6 @@
   - can unrest go down?
   - how to handle the fact that money is zero-sum?
   - costs for production?
+  - random effects/changes so that you can't reach perfect stability
 
 ./UI/Game.react.js:  // TODO: add button to pay to unlock next commodity

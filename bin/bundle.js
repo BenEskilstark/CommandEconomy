@@ -13,10 +13,10 @@ var config = {
     demand: 1,
     demandFn: function demandFn(cost, population) {
       if (cost <= 5) {
-        return population * (6 - cost);
+        return 2 * population * (6 - cost);
       }
 
-      return population;
+      return 2 * population;
     },
     unlocked: true
   }, {
@@ -27,18 +27,44 @@ var config = {
     inventory: 0,
     demand: 1,
     demandFn: function demandFn(cost, population) {
-      return Math.floor(population / cost);
+      var adjCost = cost > 0 ? cost : 0.01;
+      return Math.max(1, Math.floor(population / adjCost));
     },
     unlocked: true
+  }, {
+    name: 'Pants',
+    laborRequired: 2,
+    laborAssigned: 0,
+    price: 2,
+    inventory: 0,
+    demand: 1,
+    demandFn: function demandFn(cost, population) {
+      var adjCost = cost > 0 ? cost : 0.01;
+      return Math.max(1, Math.floor(population / adjCost));
+    },
+    unlocked: true
+  }, {
+    name: 'Pocket Watches',
+    laborRequired: 5,
+    laborAssigned: 0,
+    price: 5,
+    inventory: 0,
+    demand: 1,
+    demandFn: function demandFn(cost, population) {
+      return 1;
+    },
+    unlocked: false
   }],
 
   capital: 1000,
   labor: 10,
-  laborGrowthRate: function laborGrowthRate(n) {
-    if (n % 10 != 0 || n == 0) {
+  laborGrowthRate: function laborGrowthRate(pop, time) {
+    console.log("in laborGrowthRate");
+    if (time % 10 != 0) {
+      console.log("returning 0", pop);
       return 0;
     }
-    return Math.max(1, Math.floor(n * n * 0.001));
+    return Math.max(1, Math.floor(pop * pop * 0.001));
   },
 
   wages: 10,
@@ -178,7 +204,11 @@ var gameReducer = function gameReducer(game, action) {
             game.laborSavings = nextLaborSavings;
             game.capital += revenue;
             var inventorySold = Math.floor(revenue / commodity.price);
-            commodity.inventory -= inventorySold;
+            if (commodity.price == 0) {
+              commodity.inventory = Math.max(0, commodity.inventory - commodity.demand);
+            } else {
+              commodity.inventory -= inventorySold;
+            }
             // increase unrest if labor can't afford demand
             if (savingsDeficit > 0) {
               console.log("labor can't afford demand for", commodity.name, savingsDeficit / (commodity.price * demandMet));
@@ -206,7 +236,7 @@ var gameReducer = function gameReducer(game, action) {
         game.commodities.forEach(function (c) {
           return totalLabor += c.laborAssigned;
         });
-        game.labor += config.laborGrowthRate(totalLabor);
+        game.labor += config.laborGrowthRate(totalLabor, game.time);
 
         return game;
       }
@@ -236,13 +266,13 @@ var gameReducer = function gameReducer(game, action) {
         var _commodity2 = getCommodity(game, _name);
         if (laborChange < 0) {
           // unassigning labor
-          if (_commodity2.laborAssigned > laborChange) {
+          if (_commodity2.laborAssigned >= laborChange) {
             _commodity2.laborAssigned += laborChange;
             game.labor -= laborChange;
           }
         } else {
           // assigning labor
-          if (game.labor > laborChange) {
+          if (game.labor >= laborChange) {
             _commodity2.laborAssigned += laborChange;
             game.labor -= laborChange;
           }
