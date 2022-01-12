@@ -1,10 +1,6 @@
 
 - bugs
-  - lowering price of bread increases demand so much that people can't
-    afford it
-
-- unrest counter
-  - lose the game when unrest hits 100%
+  - bread inventory can go to NaN when price is set to 0?
 
 - additional content
   - handle demand < 1 selling something only every couple turns
@@ -14,11 +10,10 @@
   - tune capital values
   - tune demand values
 
-- how to indicate what is causing unrest/where the bottlenecks are
-  - color numbers red that are decreasing?
-  - ticker item whenever unrest is being generated?
-
 - maybe?
+  - add a gold/currency commodity
+  - add a researcher role for unlocking commodities
+  - color numbers red that are decreasing?
   - reduce productivity based on unrest?
   - can unrest go down?
   - how to handle the fact that money is zero-sum?

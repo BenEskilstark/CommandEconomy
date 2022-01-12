@@ -5,6 +5,8 @@ const Button = require('./Components/Button.react');
 const InfoCard = require('./Components/InfoCard.react');
 const {displayMoney} = require('../utils/display');
 const {totalPopulation} = require('../selectors/selectors');
+const {initGameOverSystem} = require('../systems/gameOverSystem');
+const {useState, useMemo, useEffect} = React;
 
 import type {State, Action} from '../types';
 
@@ -14,8 +16,13 @@ type Props = {
 };
 
 function Game(props: Props): React.Node {
-  const {state, dispatch} = props;
+  const {state, dispatch, store} = props;
   const game = state.game;
+
+  // initializations
+  useEffect(() => {
+    initGameOverSystem(store);
+  }, []);
 
   const commodities = [];
   for (const commodity of game.commodities) {
@@ -34,8 +41,38 @@ function Game(props: Props): React.Node {
 
   return (
     <div>
+      <Ticker game={game} />
       <Info game={game} dispatch={dispatch} />
       {commodities}
+    </div>
+  );
+}
+
+function Ticker(props): React.Node {
+  const {game} = props;
+  const messages = [];
+  for (let i = 0; i < game.ticker.length; i++) {
+    const message = game.ticker[i];
+    messages.push(
+      <div
+        key={"ticker_" + i}
+        style={{
+
+        }}
+      >
+        {message}
+      </div>
+    );
+  }
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: 90,
+        padding: 4,
+      }}
+    >
+      {messages}
     </div>
   );
 }

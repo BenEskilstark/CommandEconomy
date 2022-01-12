@@ -45,9 +45,9 @@ const gameReducer = (game, action) => {
         game.laborSavings += (laborCost - laborCostDeficit);
         // increase unrest if wages are not payable:
         if (laborCostDeficit > 0) {
-          console.log(
-            "can't afford to pay labor for",
-            commodity.name, laborCostDeficit / laborCost,
+          appendTicker(game,
+            "Unrest! Can't afford to pay labor for " + commodity.name +
+            "(Unrest: " + game.unrest.toFixed(2) + "%)",
           );
           game.unrest += laborCostDeficit / laborCost;
         }
@@ -71,9 +71,9 @@ const gameReducer = (game, action) => {
         } = subtractWithDeficit(commodity.inventory, commodity.demand);
         // increase unrest if demand is not met:
         if (inventoryDeficit > 0) {
-          console.log(
-            "inventory doesn't meet demand for ", commodity.name,
-            inventoryDeficit/commodity.demand,
+          appendTicker(game,
+            "Unrest! Inventory doesn't meet demand for " + commodity.name +
+            "(Unrest: " + game.unrest.toFixed(2) + "%)",
           );
           game.unrest += inventoryDeficit / commodity.demand;
         }
@@ -94,11 +94,11 @@ const gameReducer = (game, action) => {
         }
         // increase unrest if labor can't afford demand
         if (savingsDeficit > 0) {
-          console.log(
-            "labor can't afford demand for", commodity.name,
-            savingsDeficit/(commodity.price*demandMet),
-          );
           game.unrest += savingsDeficit / (commodity.price * demandMet);
+          appendTicker(game,
+            "Unrest! Labor can't afford demand for " + commodity.name +
+            "(Unrest: " + game.unrest.toFixed(2) + "%)",
+          );
         }
       }
 
@@ -107,6 +107,20 @@ const gameReducer = (game, action) => {
       game.commodities.forEach(c => totalLabor += c.laborAssigned);
       game.labor += config.laborGrowthRate(totalLabor, game.time)
 
+      // check if you lost
+      if (game.unrest > 100) {
+        game.gameOver = true;
+      }
+
+      return game;
+    }
+    case 'APPEND_TICKER': {
+      const {message} = action;
+      appendTicker(game, message);
+      return game;
+    }
+    case 'SET_GAME_OVER': {
+      game.gameOver = true;
       return game;
     }
     case 'INCREMENT_WAGES': {
@@ -140,6 +154,13 @@ const gameReducer = (game, action) => {
     }
   }
   return game;
+}
+
+function appendTicker(game, message) {
+    game.ticker.push(message);
+    if (game.ticker.length > config.maxTickerLength) {
+      game.ticker.shift();
+    }
 }
 
 

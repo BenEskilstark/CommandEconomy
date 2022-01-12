@@ -59,9 +59,7 @@ var config = {
   capital: 1000,
   labor: 10,
   laborGrowthRate: function laborGrowthRate(pop, time) {
-    console.log("in laborGrowthRate");
     if (time % 10 != 0) {
-      console.log("returning 0", pop);
       return 0;
     }
     return Math.max(1, Math.floor(pop * pop * 0.001));
@@ -69,7 +67,9 @@ var config = {
 
   wages: 10,
   unrest: 0,
-  laborSavings: 50
+  laborSavings: 50,
+
+  maxTickerLength: 5
 };
 
 module.exports = {
@@ -104,7 +104,7 @@ function renderUI(store) {
     modal: state.modal
   }), document.getElementById('container'));
 }
-},{"./reducers/rootReducer":5,"./ui/Main.react":10,"react":21,"react-dom":18,"redux":22}],3:[function(require,module,exports){
+},{"./reducers/rootReducer":5,"./ui/Main.react":11,"react":25,"react-dom":22,"redux":26}],3:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -169,7 +169,7 @@ var gameReducer = function gameReducer(game, action) {
             game.laborSavings += laborCost - laborCostDeficit;
             // increase unrest if wages are not payable:
             if (laborCostDeficit > 0) {
-              console.log("can't afford to pay labor for", commodity.name, laborCostDeficit / laborCost);
+              appendTicker(game, "Unrest! Can't afford to pay labor for " + commodity.name + "(Unrest: " + game.unrest.toFixed(2) + "%)");
               game.unrest += laborCostDeficit / laborCost;
             }
 
@@ -190,7 +190,7 @@ var gameReducer = function gameReducer(game, action) {
 
 
             if (inventoryDeficit > 0) {
-              console.log("inventory doesn't meet demand for ", commodity.name, inventoryDeficit / commodity.demand);
+              appendTicker(game, "Unrest! Inventory doesn't meet demand for " + commodity.name + "(Unrest: " + game.unrest.toFixed(2) + "%)");
               game.unrest += inventoryDeficit / commodity.demand;
             }
             // LABOR SAVINGS
@@ -211,8 +211,8 @@ var gameReducer = function gameReducer(game, action) {
             }
             // increase unrest if labor can't afford demand
             if (savingsDeficit > 0) {
-              console.log("labor can't afford demand for", commodity.name, savingsDeficit / (commodity.price * demandMet));
               game.unrest += savingsDeficit / (commodity.price * demandMet);
+              appendTicker(game, "Unrest! Labor can't afford demand for " + commodity.name + "(Unrest: " + game.unrest.toFixed(2) + "%)");
             }
           }
 
@@ -238,6 +238,23 @@ var gameReducer = function gameReducer(game, action) {
         });
         game.labor += config.laborGrowthRate(totalLabor, game.time);
 
+        // check if you lost
+        if (game.unrest > 100) {
+          game.gameOver = true;
+        }
+
+        return game;
+      }
+    case 'APPEND_TICKER':
+      {
+        var message = action.message;
+
+        appendTicker(game, message);
+        return game;
+      }
+    case 'SET_GAME_OVER':
+      {
+        game.gameOver = true;
         return game;
       }
     case 'INCREMENT_WAGES':
@@ -282,6 +299,13 @@ var gameReducer = function gameReducer(game, action) {
   }
   return game;
 };
+
+function appendTicker(game, message) {
+  game.ticker.push(message);
+  if (game.ticker.length > config.maxTickerLength) {
+    game.ticker.shift();
+  }
+}
 
 module.exports = { gameReducer: gameReducer };
 },{"../config":1,"../selectors/selectors":6}],4:[function(require,module,exports){
@@ -358,6 +382,8 @@ var rootReducer = function rootReducer(state, action) {
     case 'INCREMENT_PRICE':
     case 'INCREMENT_LABOR':
     case 'INCREMENT_WAGES':
+    case 'APPEND_TICKER':
+    case 'SET_GAME_OVER':
     case 'START_TICK':
     case 'STOP_TICK':
     case 'TICK':
@@ -391,6 +417,7 @@ var initGameState = function initGameState() {
     unrest: config.unrest,
     laborSavings: config.laborSavings,
     people: [],
+    ticker: ['Welcome to The Command Economy'],
     time: 0
   };
 
@@ -423,7 +450,7 @@ var initGameState = function initGameState() {
 };
 
 module.exports = { rootReducer: rootReducer };
-},{"../config":1,"../selectors/selectors":6,"../utils/helpers":12,"./gameReducer":3,"./modalReducer":4}],6:[function(require,module,exports){
+},{"../config":1,"../selectors/selectors":6,"../utils/helpers":16,"./gameReducer":3,"./modalReducer":4}],6:[function(require,module,exports){
 "use strict";
 
 var getCommodity = function getCommodity(game, name) {
@@ -528,6 +555,95 @@ module.exports = {
 },{}],7:[function(require,module,exports){
 'use strict';
 
+var React = require('react');
+var Divider = require('../ui/components/Divider.react');
+var Modal = require('../ui/components/Modal.react');
+var Button = require('../ui/components/Button.react');
+var useState = React.useState;
+
+/**
+ * Checks the state every tick for game-over conditions, then orchestrates
+ * transition out of the level on win or loss
+ *
+ * Can short-circuit the game-over checks by setting the gameOver flag on the
+ * game directly or with the SET_GAME_OVER action
+ */
+
+var initGameOverSystem = function initGameOverSystem(store) {
+  var dispatch = store.dispatch;
+
+  var time = -1;
+  store.subscribe(function () {
+    var state = store.getState();
+    var game = state.game;
+
+    if (!game) return;
+    if (game.time == time) return;
+    if (game.time == 0) return;
+    time = game.time;
+
+    var gameOver = game.gameOver;
+
+    // handle win conditions
+
+    if (false) {
+      handleGameWon(store, dispatch, state, 'win');
+    }
+
+    // loss conditions
+    if (game.gameOver || game.unrest > 100) {
+      handleGameLoss(store, dispatch, state, 'loss');
+    }
+  });
+};
+
+var handleGameLoss = function handleGameLoss(store, dispatch, state, reason) {
+  var game = state.game;
+
+  dispatch({ type: 'STOP_TICK' });
+
+  var returnButton = {
+    label: 'Back to Main Menu',
+    onClick: function onClick() {
+      dispatch({ type: 'DISMISS_MODAL' });
+      dispatch({ type: 'SET_SCREEN', screen: 'LOBBY' });
+    }
+  };
+  var resetButton = {
+    label: 'Restart',
+    onClick: function onClick() {
+      dispatch({ type: 'DISMISS_MODAL' });
+      dispatch({ type: 'SET_SCREEN', screen: 'LOBBY' });
+      dispatch({ type: 'START', screen: 'GAME' });
+    }
+  };
+  var buttons = [returnButton, resetButton];
+
+  var body = React.createElement(
+    'div',
+    null,
+    'Unrest is too high and the people have overthrown you! You kept the economy going\n      for ' + game.time + ' days'
+  );
+
+  dispatch({ type: 'SET_MODAL',
+    modal: React.createElement(Modal, {
+      title: 'Game Over',
+      body: body,
+      buttons: buttons
+    })
+  });
+};
+
+var handleGameWon = function handleGameWon(store, dispatch, state, reason) {
+  var game = state.game;
+
+  dispatch({ type: 'STOP_TICK' });
+};
+
+module.exports = { initGameOverSystem: initGameOverSystem };
+},{"../ui/components/Button.react":12,"../ui/components/Divider.react":13,"../ui/components/Modal.react":14,"react":25}],8:[function(require,module,exports){
+'use strict';
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -609,7 +725,7 @@ function Button(props) {
 }
 
 module.exports = Button;
-},{"react":21}],8:[function(require,module,exports){
+},{"react":25}],9:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -639,7 +755,7 @@ var InfoCard = function InfoCard(props) {
 };
 
 module.exports = InfoCard;
-},{"react":21}],9:[function(require,module,exports){
+},{"react":25}],10:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -652,11 +768,25 @@ var _require = require('../utils/display'),
 var _require2 = require('../selectors/selectors'),
     totalPopulation = _require2.totalPopulation;
 
+var _require3 = require('../systems/gameOverSystem'),
+    initGameOverSystem = _require3.initGameOverSystem;
+
+var useState = React.useState,
+    useMemo = React.useMemo,
+    useEffect = React.useEffect;
+
+
 function Game(props) {
   var state = props.state,
-      dispatch = props.dispatch;
+      dispatch = props.dispatch,
+      store = props.store;
 
   var game = state.game;
+
+  // initializations
+  useEffect(function () {
+    initGameOverSystem(store);
+  }, []);
 
   var commodities = [];
   var _iteratorNormalCompletion = true;
@@ -695,8 +825,37 @@ function Game(props) {
   return React.createElement(
     'div',
     null,
+    React.createElement(Ticker, { game: game }),
     React.createElement(Info, { game: game, dispatch: dispatch }),
     commodities
+  );
+}
+
+function Ticker(props) {
+  var game = props.game;
+
+  var messages = [];
+  for (var i = 0; i < game.ticker.length; i++) {
+    var message = game.ticker[i];
+    messages.push(React.createElement(
+      'div',
+      {
+        key: "ticker_" + i,
+        style: {}
+      },
+      message
+    ));
+  }
+  return React.createElement(
+    'div',
+    {
+      style: {
+        width: '100%',
+        height: 90,
+        padding: 4
+      }
+    },
+    messages
   );
 }
 
@@ -834,7 +993,7 @@ function Commodity(props) {
 }
 
 module.exports = Game;
-},{"../selectors/selectors":6,"../utils/display":11,"./Components/Button.react":7,"./Components/InfoCard.react":8,"react":21}],10:[function(require,module,exports){
+},{"../selectors/selectors":6,"../systems/gameOverSystem":7,"../utils/display":15,"./Components/Button.react":8,"./Components/InfoCard.react":9,"react":25}],11:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -850,7 +1009,7 @@ function Main(props) {
   if (state.screen === 'LOBBY') {
     content = React.createElement(Lobby, { dispatch: props.dispatch, store: props.store });
   } else if (state.screen === 'GAME') {
-    content = React.createElement(Game, { dispatch: props.dispatch, state: state });
+    content = React.createElement(Game, { dispatch: props.dispatch, state: state, store: props.store });
   }
 
   return React.createElement(
@@ -876,7 +1035,102 @@ function Lobby(props) {
 }
 
 module.exports = Main;
-},{"./Components/Button.react":7,"./Game.react":9,"react":21}],11:[function(require,module,exports){
+},{"./Components/Button.react":8,"./Game.react":10,"react":25}],12:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8,"react":25}],13:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var React = require('react');
+
+function Divider(props) {
+  var style = props.style;
+
+  return React.createElement('div', {
+    style: _extends({
+      width: '100%',
+      height: '0px',
+      border: '1px solid black'
+    }, style)
+  });
+}
+
+module.exports = Divider;
+},{"react":25}],14:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+var Button = require('./Button.react');
+
+var _require = require('../../utils/helpers'),
+    isMobile = _require.isMobile;
+
+function Modal(props) {
+  var title = props.title,
+      body = props.body,
+      buttons = props.buttons;
+
+  var height = props.height ? props.height : 450;
+
+  // using 2 rects to properly position width and height
+  var rect = document.getElementById('container').getBoundingClientRect();
+  var canvasRect = null;
+  var canvas = document.getElementById('canvas');
+  if (canvas != null) {
+    canvasRect = canvas.getBoundingClientRect();
+  } else {
+    canvasRect = rect;
+  }
+
+  var buttonHTML = buttons.map(function (b) {
+    return React.createElement(Button, {
+      key: "b_" + b.label,
+      disabled: !!b.disabled,
+      label: b.label, onClick: b.onClick
+    });
+  });
+
+  var width = props.width ? props.width : Math.min(rect.width * 0.8, 350);
+  return React.createElement(
+    'div',
+    {
+      style: {
+        position: 'absolute',
+        backgroundColor: 'whitesmoke',
+        border: '1px solid black',
+        padding: 4,
+        boxShadow: '2px 2px #666666',
+        borderRadius: 3,
+        color: '#46403a',
+        textAlign: 'center',
+        width: width,
+        top: isMobile() ? 0 : (canvasRect.height - height) / 2,
+        left: (rect.width - width) / 2
+      }
+    },
+    React.createElement(
+      'h3',
+      null,
+      React.createElement(
+        'b',
+        null,
+        title
+      )
+    ),
+    body,
+    React.createElement(
+      'div',
+      {
+        style: {}
+      },
+      buttonHTML
+    )
+  );
+}
+
+module.exports = Modal;
+},{"../../utils/helpers":16,"./Button.react":12,"react":25}],15:[function(require,module,exports){
 'use strict';
 
 var displayMoney = function displayMoney(money) {
@@ -890,7 +1144,7 @@ var displayMoney = function displayMoney(money) {
 module.exports = {
   displayMoney: displayMoney
 };
-},{}],12:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -1054,7 +1308,7 @@ module.exports = {
   throttle: throttle,
   isElectron: isElectron
 };
-},{}],13:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 function _defineProperty(obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
@@ -1071,7 +1325,7 @@ function _defineProperty(obj, key, value) {
 }
 
 module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
-},{}],14:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 var defineProperty = require("./defineProperty.js");
 
 function ownKeys(object, enumerableOnly) {
@@ -1101,7 +1355,7 @@ function _objectSpread2(target) {
 }
 
 module.exports = _objectSpread2, module.exports.__esModule = true, module.exports["default"] = module.exports;
-},{"./defineProperty.js":13}],15:[function(require,module,exports){
+},{"./defineProperty.js":17}],19:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -1193,7 +1447,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],16:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v17.0.2
  * react-dom.development.js
@@ -27459,7 +27713,7 @@ exports.version = ReactVersion;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":29,"object-assign":15,"react":21,"scheduler":27,"scheduler/tracing":28}],17:[function(require,module,exports){
+},{"_process":33,"object-assign":19,"react":25,"scheduler":31,"scheduler/tracing":32}],21:[function(require,module,exports){
 /** @license React v17.0.2
  * react-dom.production.min.js
  *
@@ -27758,7 +28012,7 @@ exports.findDOMNode=function(a){if(null==a)return null;if(1===a.nodeType)return 
 exports.render=function(a,b,c){if(!rk(b))throw Error(y(200));return tk(null,a,b,!1,c)};exports.unmountComponentAtNode=function(a){if(!rk(a))throw Error(y(40));return a._reactRootContainer?(Xj(function(){tk(null,null,a,!1,function(){a._reactRootContainer=null;a[ff]=null})}),!0):!1};exports.unstable_batchedUpdates=Wj;exports.unstable_createPortal=function(a,b){return uk(a,b,2<arguments.length&&void 0!==arguments[2]?arguments[2]:null)};
 exports.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!rk(c))throw Error(y(200));if(null==a||void 0===a._reactInternals)throw Error(y(38));return tk(a,b,c,!1,d)};exports.version="17.0.2";
 
-},{"object-assign":15,"react":21,"scheduler":27}],18:[function(require,module,exports){
+},{"object-assign":19,"react":25,"scheduler":31}],22:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -27800,7 +28054,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react-dom.development.js":16,"./cjs/react-dom.production.min.js":17,"_process":29}],19:[function(require,module,exports){
+},{"./cjs/react-dom.development.js":20,"./cjs/react-dom.production.min.js":21,"_process":33}],23:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v17.0.2
  * react.development.js
@@ -30137,7 +30391,7 @@ exports.version = ReactVersion;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":29,"object-assign":15}],20:[function(require,module,exports){
+},{"_process":33,"object-assign":19}],24:[function(require,module,exports){
 /** @license React v17.0.2
  * react.production.min.js
  *
@@ -30162,7 +30416,7 @@ key:d,ref:k,props:e,_owner:h}};exports.createContext=function(a,b){void 0===b&&(
 exports.lazy=function(a){return{$$typeof:v,_payload:{_status:-1,_result:a},_init:Q}};exports.memo=function(a,b){return{$$typeof:u,type:a,compare:void 0===b?null:b}};exports.useCallback=function(a,b){return S().useCallback(a,b)};exports.useContext=function(a,b){return S().useContext(a,b)};exports.useDebugValue=function(){};exports.useEffect=function(a,b){return S().useEffect(a,b)};exports.useImperativeHandle=function(a,b,c){return S().useImperativeHandle(a,b,c)};
 exports.useLayoutEffect=function(a,b){return S().useLayoutEffect(a,b)};exports.useMemo=function(a,b){return S().useMemo(a,b)};exports.useReducer=function(a,b,c){return S().useReducer(a,b,c)};exports.useRef=function(a){return S().useRef(a)};exports.useState=function(a){return S().useState(a)};exports.version="17.0.2";
 
-},{"object-assign":15}],21:[function(require,module,exports){
+},{"object-assign":19}],25:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -30173,7 +30427,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react.development.js":19,"./cjs/react.production.min.js":20,"_process":29}],22:[function(require,module,exports){
+},{"./cjs/react.development.js":23,"./cjs/react.production.min.js":24,"_process":33}],26:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -30874,7 +31128,7 @@ exports.compose = compose;
 exports.createStore = createStore;
 
 }).call(this)}).call(this,require('_process'))
-},{"@babel/runtime/helpers/objectSpread2":14,"_process":29}],23:[function(require,module,exports){
+},{"@babel/runtime/helpers/objectSpread2":18,"_process":33}],27:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v0.20.2
  * scheduler-tracing.development.js
@@ -31225,7 +31479,7 @@ exports.unstable_wrap = unstable_wrap;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":29}],24:[function(require,module,exports){
+},{"_process":33}],28:[function(require,module,exports){
 /** @license React v0.20.2
  * scheduler-tracing.production.min.js
  *
@@ -31236,7 +31490,7 @@ exports.unstable_wrap = unstable_wrap;
  */
 'use strict';var b=0;exports.__interactionsRef=null;exports.__subscriberRef=null;exports.unstable_clear=function(a){return a()};exports.unstable_getCurrent=function(){return null};exports.unstable_getThreadID=function(){return++b};exports.unstable_subscribe=function(){};exports.unstable_trace=function(a,d,c){return c()};exports.unstable_unsubscribe=function(){};exports.unstable_wrap=function(a){return a};
 
-},{}],25:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v0.20.2
  * scheduler.development.js
@@ -31886,7 +32140,7 @@ exports.unstable_wrapCallback = unstable_wrapCallback;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":29}],26:[function(require,module,exports){
+},{"_process":33}],30:[function(require,module,exports){
 /** @license React v0.20.2
  * scheduler.production.min.js
  *
@@ -31908,7 +32162,7 @@ exports.unstable_next=function(a){switch(P){case 1:case 2:case 3:var b=3;break;d
 exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3}e=c+e;a={id:N++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,H(M,a),null===J(L)&&a===J(M)&&(S?h():S=!0,g(U,c-d))):(a.sortIndex=e,H(L,a),R||Q||(R=!0,f(V)));return a};
 exports.unstable_wrapCallback=function(a){var b=P;return function(){var c=P;P=b;try{return a.apply(this,arguments)}finally{P=c}}};
 
-},{}],27:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -31919,7 +32173,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler.development.js":25,"./cjs/scheduler.production.min.js":26,"_process":29}],28:[function(require,module,exports){
+},{"./cjs/scheduler.development.js":29,"./cjs/scheduler.production.min.js":30,"_process":33}],32:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -31930,7 +32184,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler-tracing.development.js":23,"./cjs/scheduler-tracing.production.min.js":24,"_process":29}],29:[function(require,module,exports){
+},{"./cjs/scheduler-tracing.development.js":27,"./cjs/scheduler-tracing.production.min.js":28,"_process":33}],33:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 

@@ -35,6 +35,8 @@ const rootReducer = (state: State, action: Action): State => {
     case 'INCREMENT_PRICE':
     case 'INCREMENT_LABOR':
     case 'INCREMENT_WAGES':
+    case 'APPEND_TICKER':
+    case 'SET_GAME_OVER':
     case 'START_TICK':
     case 'STOP_TICK':
     case 'TICK': {
@@ -67,6 +69,7 @@ const initGameState = () => {
     unrest: config.unrest,
     laborSavings: config.laborSavings,
     people: [],
+    ticker: ['Welcome to The Command Economy'],
     time: 0,
   };
 

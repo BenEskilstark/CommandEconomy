@@ -63,9 +63,7 @@ const config = {
   capital: 1000,
   labor: 10,
   laborGrowthRate: (pop, time) => {
-    console.log("in laborGrowthRate");
     if (time % 10 != 0) {
-      console.log("returning 0", pop);
       return 0;
     }
     return Math.max(1, Math.floor(pop * pop * 0.001))
@@ -74,6 +72,8 @@ const config = {
   wages: 10,
   unrest: 0,
   laborSavings: 50,
+
+  maxTickerLength: 5,
 };
 
 module.exports = {

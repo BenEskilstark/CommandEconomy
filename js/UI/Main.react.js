@@ -20,7 +20,7 @@ function Main(props: Props): React.Node {
   if (state.screen === 'LOBBY') {
     content = <Lobby dispatch={props.dispatch} store={props.store} />;
   } else if (state.screen === 'GAME') {
-    content = <Game dispatch={props.dispatch} state={state} />;
+    content = <Game dispatch={props.dispatch} state={state} store={props.store} />;
   }
 
   return (
