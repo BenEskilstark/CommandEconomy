@@ -11,14 +11,14 @@ var config = {
     price: 2,
     inventory: 0,
     demand: 1,
-    demandFn: function demandFn(cost, population) {
+    demandFn: function demandFn(game, cost, population) {
       if (cost <= 5) {
         return 2 * population * (6 - cost);
       }
-
       return 2 * population;
     },
-    unlocked: true
+    unlocked: true,
+    numSold: 0
   }, {
     name: 'Shirts',
     laborRequired: 1,
@@ -26,11 +26,12 @@ var config = {
     price: 5,
     inventory: 0,
     demand: 1,
-    demandFn: function demandFn(cost, population) {
+    demandFn: function demandFn(game, cost, population) {
       var adjCost = cost > 0 ? cost : 0.01;
       return Math.max(1, Math.floor(population / adjCost));
     },
-    unlocked: false
+    unlocked: false,
+    numSold: 0
   }, {
     name: 'Pants',
     laborRequired: 2,
@@ -38,11 +39,12 @@ var config = {
     price: 5,
     inventory: 0,
     demand: 1,
-    demandFn: function demandFn(cost, population) {
+    demandFn: function demandFn(game, cost, population) {
       var adjCost = cost > 0 ? cost : 0.01;
       return Math.max(1, Math.floor(population / adjCost));
     },
-    unlocked: false
+    unlocked: false,
+    numSold: 0
   }, {
     name: 'Pocket Watches',
     laborRequired: 10,
@@ -50,10 +52,98 @@ var config = {
     price: 15,
     inventory: 0,
     demand: 1,
-    demandFn: function demandFn(cost, population) {
+    demandFn: function demandFn(game, cost, population) {
       return 1;
     },
-    unlocked: false
+    unlocked: false,
+    numSold: 0
+  }, {
+    name: 'Gold',
+    laborRequired: 10,
+    laborAssigned: 0,
+    price: 0,
+    inventory: 0,
+    demand: 0,
+    demandFn: function demandFn(game, cost, population) {
+      return 0;
+    },
+    unlocked: false,
+    numSold: 0
+  }, {
+    name: 'Cars',
+    laborRequired: 40,
+    laborAssigned: 0,
+    price: 50,
+    inventory: 0,
+    demand: 1,
+    demandFn: function demandFn(game, cost, population) {
+      var adjCost = cost > 0 ? cost : 0.01;
+      return Math.max(1, Math.floor(2 * population / adjCost));
+    },
+    unlocked: false,
+    numSold: 0
+  }, {
+    name: 'Oil',
+    laborRequired: 2,
+    laborAssigned: 0,
+    price: 5,
+    inventory: 0,
+    demand: 1,
+    demandFn: function demandFn(game, cost, population) {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = game.commodities[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var commodity = _step.value;
+
+          if (commodity.name == 'Cars') {
+            return commodity.numSold;
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    },
+    unlocked: false,
+    numSold: 0
+  }, {
+    name: 'Research',
+    laborRequired: 20,
+    laborAssigned: 0,
+    price: 0,
+    inventory: 0,
+    demand: 0,
+    demandFn: function demandFn(game, cost, population) {
+      return 0;
+    },
+    unlocked: false,
+    numSold: 0
+  }, {
+    name: 'Smart Phones',
+    laborRequired: 30,
+    laborAssigned: 0,
+    price: 75,
+    inventory: 0,
+    demand: 0,
+    demandFn: function demandFn(game, cost, population) {
+      var adjCost = cost > 0 ? cost : 0.01;
+      return Math.max(1, Math.floor(5 * population / adjCost));
+    },
+    unlocked: false,
+    numSold: 0
   }],
 
   capital: 10000,
@@ -145,6 +235,9 @@ var gameReducer = function gameReducer(game, action) {
         game.time += 1;
         game.ticksSinceUnrest += 1;
 
+        // special case for unrest based on how many smart phones have been sold
+        var unrestFactor = 1 + getCommodity(game, 'Smart Phones').numSold / 100;
+
         // commodities
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
@@ -157,7 +250,7 @@ var gameReducer = function gameReducer(game, action) {
             if (!commodity.unlocked) continue;
 
             // compute DEMAND based on price and labor
-            commodity.demand = commodity.demandFn(commodity.price, totalPopulation(game));
+            commodity.demand = commodity.demandFn(game, commodity.price, totalPopulation(game));
 
             // compute WAGES for production
             var laborCost = commodity.laborAssigned * game.wages;
@@ -170,7 +263,7 @@ var gameReducer = function gameReducer(game, action) {
             game.laborSavings += laborCost - laborCostDeficit;
             // increase unrest if wages are not payable:
             if (laborCostDeficit > 0) {
-              game.unrest += laborCostDeficit / laborCost;
+              game.unrest += unrestFactor * laborCostDeficit / laborCost;
               game.ticksSinceUnrest = 0;
               appendTicker(game, "Unrest! Can't afford to pay labor for " + commodity.name + " (Unrest: " + game.unrest.toFixed(2) + "%)");
             }
@@ -188,6 +281,42 @@ var gameReducer = function gameReducer(game, action) {
             var production = roundFn(fractionalProduction);
             commodity.inventory += production;
 
+            // special cases for gold and research, which are not purchasable commodities
+            if (commodity.name == 'Gold') {
+              game.capital += commodity.inventory;
+              commodity.inventory = 0;
+              continue;
+            }
+            if (commodity.name == 'Research') {
+              var _iteratorNormalCompletion2 = true;
+              var _didIteratorError2 = false;
+              var _iteratorError2 = undefined;
+
+              try {
+                for (var _iterator2 = game.commodities[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                  var c = _step2.value;
+
+                  if (commodity.laborRequired <= 0.1) continue;
+                  commodity.laborRequired -= commodity.inventory / 10;
+                }
+              } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+              } finally {
+                try {
+                  if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                    _iterator2.return();
+                  }
+                } finally {
+                  if (_didIteratorError2) {
+                    throw _iteratorError2;
+                  }
+                }
+              }
+
+              commodity.inventory = 0;
+            }
+
             // compute SALES for each commodity
             // sales depend both on inventory meeting demand AND labor
             // having enough savings to afford the demand
@@ -200,7 +329,7 @@ var gameReducer = function gameReducer(game, action) {
 
 
             if (inventoryDeficit > 0) {
-              game.unrest += inventoryDeficit / commodity.demand;
+              game.unrest += unrestFactor * inventoryDeficit / commodity.demand;
               game.ticksSinceUnrest = 0;
               appendTicker(game, "Unrest! Inventory doesn't meet demand for " + commodity.name + " (Unrest: " + game.unrest.toFixed(2) + "%)");
             }
@@ -220,9 +349,11 @@ var gameReducer = function gameReducer(game, action) {
             } else {
               commodity.inventory -= inventorySold;
             }
+            commodity.numSold += inventorySold;
+
             // increase unrest if labor can't afford demand
             if (savingsDeficit > 0) {
-              game.unrest += savingsDeficit / (commodity.price * demandMet);
+              game.unrest += unrestFactor * savingsDeficit / (commodity.price * demandMet);
               game.ticksSinceUnrest = 0;
               appendTicker(game, "Unrest! Labor can't afford demand for " + commodity.name + " (Unrest: " + game.unrest.toFixed(2) + "%)");
             }
@@ -258,7 +389,7 @@ var gameReducer = function gameReducer(game, action) {
         // reduce unrest a bit
         if (game.ticksSinceUnrest > 20 && game.unrest > 0) {
           appendTicker(game, 'The stability of the economy is causing the unrest to die down');
-          game.unrest -= game.ticksSinceUnrest / 1000;
+          game.unrest -= unrestFactor * game.ticksSinceUnrest / 1000;
           if (game.unrest < 0) {
             game.unrest = 0;
           }
@@ -292,7 +423,7 @@ var gameReducer = function gameReducer(game, action) {
 
         var _commodity = getCommodity(game, name);
         _commodity.price += priceChange;
-        _commodity.demand = _commodity.demandFn(_commodity.price, totalPopulation(game));
+        _commodity.demand = _commodity.demandFn(game, _commodity.price, totalPopulation(game));
 
         return game;
       }
@@ -323,7 +454,7 @@ var gameReducer = function gameReducer(game, action) {
 
         var _commodity3 = getCommodity(game, _name2);
         _commodity3.unlocked = true;
-        _commodity3.demand = _commodity3.demandFn(_commodity3.price, totalPopulation(game));
+        _commodity3.demand = _commodity3.demandFn(game, _commodity3.price, totalPopulation(game));
         return game;
       }
   }
@@ -461,7 +592,7 @@ var initGameState = function initGameState() {
     for (var _iterator = game.commodities[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var commodity = _step.value;
 
-      commodity.demand = commodity.demandFn(commodity.price, totalPopulation(game));
+      commodity.demand = commodity.demandFn(game, commodity.price, totalPopulation(game));
     }
   } catch (err) {
     _didIteratorError = true;
@@ -616,10 +747,47 @@ var initEventsSystem = function initEventsSystem(store) {
       dispatch({ type: 'STOP_TICK' });
     }
 
-    if (time == 420) {
+    if (time == 360) {
       dispatch({ type: 'APPEND_TICKER', message: 'The People are starting to get a taste for the finer things... Watches invented'
       });
       dispatch({ type: 'UNLOCK_COMMODITY', name: 'Pocket Watches' });
+      dispatch({ type: 'STOP_TICK' });
+    }
+
+    if (time == 450) {
+      dispatch({ type: 'APPEND_TICKER', message: 'Gold standard: mine gold to increase your currency reserves'
+      });
+      dispatch({ type: 'UNLOCK_COMMODITY', name: 'Gold' });
+      dispatch({ type: 'STOP_TICK' });
+    }
+
+    if (time == 600) {
+      dispatch({ type: 'APPEND_TICKER', message: 'Cars offer the people freedom of transportation'
+      });
+      dispatch({ type: 'APPEND_TICKER', message: 'Cars run on oil -- the more cars, the more oil must be produced'
+      });
+      dispatch({ type: 'UNLOCK_COMMODITY', name: 'Cars' });
+      dispatch({ type: 'UNLOCK_COMMODITY', name: 'Oil' });
+      dispatch({ type: 'STOP_TICK' });
+    }
+
+    if (time == 700) {
+      dispatch({ type: 'APPEND_TICKER', message: 'Our brightest comrades can now research more efficient production techniques'
+      });
+      dispatch({ type: 'APPEND_TICKER', message: 'Research produced is converted into less labor required for each commodity'
+      });
+      dispatch({ type: 'UNLOCK_COMMODITY', name: 'Research' });
+      dispatch({ type: 'STOP_TICK' });
+    }
+
+    if (time == 900) {
+      dispatch({ type: 'APPEND_TICKER', message: 'Our researchers have created "Smart Phones" for use by the people'
+      });
+      dispatch({ type: 'APPEND_TICKER', message: 'Smart phones cause unrest to increase faster during economic instability'
+      });
+      dispatch({ type: 'APPEND_TICKER', message: 'but they also cause unrest to decrease faster during times of economic stability'
+      });
+      dispatch({ type: 'UNLOCK_COMMODITY', name: 'Smart Phones' });
       dispatch({ type: 'STOP_TICK' });
     }
   });
@@ -1081,6 +1249,7 @@ function Info(props) {
       '%'
     ),
     React.createElement(Button, {
+      id: game.tickInterval ? '' : 'PLAY',
       label: game.tickInterval ? 'Pause Simulation' : 'Start Simulation',
       onClick: function onClick() {
         // dispatch({type: 'TICK'});

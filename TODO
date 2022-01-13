@@ -1,22 +1,20 @@
 
+- playtest
+  - around time = 500 the population increases too quickly
+  - you end up charging more for pants and shirts than for watches
+  - when population is in the 100s you need ways to assign laborers faster
+  - if you set wages to 0 all inventories and your capital goes to NaN
+
 - bugs
   - bread inventory can go to NaN when price is set to 0?
   - test that num laborers < laborers required works on a demand = 0 commodity
 
 - additional content
-  - 5 additional commodities (total of 9)
-    - gold (gives you additional currency, has no demand)
-    - cars (requires tons of labor)
-    - research (reduces labor requirements for commodities)
-    - smart phones (increases rate of unrest accumulation and reduction)
   - tune demand values
 
 - maybe?
-  - add a gold/currency commodity
-  - add a researcher role for unlocking commodities
   - color numbers red that are decreasing?
-  - button for producing additional types of commodities
-  - make this growth necessary
+  - button for producing additional types of commodities?
   - reduce productivity based on unrest?
   - how to handle the fact that money is zero-sum?
   - costs for production?

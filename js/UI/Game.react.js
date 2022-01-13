@@ -118,6 +118,7 @@ function Info(props): React.Node {
         Unrest: {game.unrest.toFixed(2)}%
       </div>
       <Button
+        id={game.tickInterval ? '' : 'PLAY'}
         label={game.tickInterval ? 'Pause Simulation' : 'Start Simulation'}
         onClick={() => {
           // dispatch({type: 'TICK'});

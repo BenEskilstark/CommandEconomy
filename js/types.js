@@ -10,6 +10,7 @@ export type Commodity = {
   price: Dollar, // selling price per unit
   inventory: number, // number of units available to sell
   demand: number, // how many of them are sold per unit time
+  numSold: number, // total number of this commodity ever sold
 };
 
 export type GameState = {

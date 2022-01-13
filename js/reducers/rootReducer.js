@@ -76,7 +76,7 @@ const initGameState = () => {
   };
 
   for (const commodity of game.commodities) {
-    commodity.demand = commodity.demandFn(commodity.price, totalPopulation(game));
+    commodity.demand = commodity.demandFn(game, commodity.price, totalPopulation(game));
   }
 
   return game;

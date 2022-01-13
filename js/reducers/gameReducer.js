@@ -31,12 +31,15 @@ const gameReducer = (game, action) => {
       game.time += 1;
       game.ticksSinceUnrest += 1;
 
+      // special case for unrest based on how many smart phones have been sold
+      const unrestFactor = 1 + getCommodity(game, 'Smart Phones').numSold / 100;
+
       // commodities
       for (const commodity of game.commodities) {
         if (!commodity.unlocked) continue;
 
         // compute DEMAND based on price and labor
-        commodity.demand = commodity.demandFn(commodity.price, totalPopulation(game));
+        commodity.demand = commodity.demandFn(game, commodity.price, totalPopulation(game));
 
         // compute WAGES for production
         const laborCost = commodity.laborAssigned * game.wages;
@@ -46,7 +49,7 @@ const gameReducer = (game, action) => {
         game.laborSavings += (laborCost - laborCostDeficit);
         // increase unrest if wages are not payable:
         if (laborCostDeficit > 0) {
-          game.unrest += laborCostDeficit / laborCost;
+          game.unrest += unrestFactor * laborCostDeficit / laborCost;
           game.ticksSinceUnrest = 0;
           appendTicker(game,
             "Unrest! Can't afford to pay labor for " + commodity.name +
@@ -69,6 +72,20 @@ const gameReducer = (game, action) => {
         const production = roundFn(fractionalProduction);
         commodity.inventory += production;
 
+        // special cases for gold and research, which are not purchasable commodities
+        if (commodity.name == 'Gold') {
+          game.capital += commodity.inventory;
+          commodity.inventory = 0;
+          continue;
+        }
+        if (commodity.name == 'Research') {
+          for (const c of game.commodities) {
+            if (commodity.laborRequired <= 0.1) continue;
+            commodity.laborRequired -= commodity.inventory / 10;
+          }
+          commodity.inventory = 0;
+        }
+
         // compute SALES for each commodity
         // sales depend both on inventory meeting demand AND labor
         // having enough savings to afford the demand
@@ -80,7 +97,7 @@ const gameReducer = (game, action) => {
         } = subtractWithDeficit(commodity.inventory, commodity.demand);
         // increase unrest if demand is not met:
         if (inventoryDeficit > 0) {
-          game.unrest += inventoryDeficit / commodity.demand;
+          game.unrest += unrestFactor * inventoryDeficit / commodity.demand;
           game.ticksSinceUnrest = 0;
           appendTicker(game,
             "Unrest! Inventory doesn't meet demand for " + commodity.name +
@@ -102,9 +119,11 @@ const gameReducer = (game, action) => {
         } else {
           commodity.inventory -= inventorySold;
         }
+        commodity.numSold += inventorySold;
+
         // increase unrest if labor can't afford demand
         if (savingsDeficit > 0) {
-          game.unrest += savingsDeficit / (commodity.price * demandMet);
+          game.unrest += unrestFactor * savingsDeficit / (commodity.price * demandMet);
           game.ticksSinceUnrest = 0;
           appendTicker(game,
             "Unrest! Labor can't afford demand for " + commodity.name +
@@ -125,8 +144,10 @@ const gameReducer = (game, action) => {
 
       // reduce unrest a bit
       if (game.ticksSinceUnrest > 20 && game.unrest > 0) {
-        appendTicker(game, 'The stability of the economy is causing the unrest to die down');
-        game.unrest -= game.ticksSinceUnrest / 1000;
+        if (game.ticksSinceUnrest == 21) {
+          appendTicker(game, 'The stability of the economy is causing the unrest to die down');
+        }
+        game.unrest -= unrestFactor * game.ticksSinceUnrest / 1000;
         if (game.unrest < 0) {
           game.unrest = 0;
         }
@@ -152,7 +173,7 @@ const gameReducer = (game, action) => {
       const {name, priceChange} = action;
       const commodity = getCommodity(game, name);
       commodity.price += priceChange;
-      commodity.demand = commodity.demandFn(commodity.price, totalPopulation(game));
+      commodity.demand = commodity.demandFn(game, commodity.price, totalPopulation(game));
 
       return game;
     }
@@ -176,7 +197,7 @@ const gameReducer = (game, action) => {
       const {name} = action;
       const commodity = getCommodity(game, name);
       commodity.unlocked = true;
-      commodity.demand = commodity.demandFn(commodity.price, totalPopulation(game));
+      commodity.demand = commodity.demandFn(game, commodity.price, totalPopulation(game));
       return game;
     }
   }
