@@ -2,6 +2,7 @@
 
 const React = require('react');
 const Button = require('./Components/Button.react');
+const Modal = require('./Components/Modal.react');
 const Game = require('./Game.react');
 // const Lobby = require('./Lobby.react');
 
@@ -37,11 +38,38 @@ function Lobby(props): React.Node {
       <Button
         label="Play"
         onClick={() => {
-          props.dispatch({type: 'START', screen: 'GAME'});
-          // props.dispatch({type: 'START_TICK'});
+          props.dispatch({
+            type: 'SET_MODAL',
+            modal: (<PlayModal dispatch={props.dispatch} />),
+          });
         }}
       />
     </div>
+  );
+}
+
+function PlayModal(props): React.Node {
+  const {dispatch} = props;
+  return (
+    <Modal
+      title={"Command Economy"}
+      body={
+        "Prove Marx right! Assign laborers to jobs, set their wages, and control " +
+        "the prices of the commodities they produce. If the economy is unstable then " +
+        "unrest will go up. If unrest hits 100%, then you will be deposed. " +
+        "Press the Start Simulation button to begin once you have your initial configuration."
+      }
+      buttons={[
+        {
+          label: "Play",
+          onClick: () => {
+            dispatch({type: 'DISMISS_MODAL'});
+            dispatch({type: 'START', screen: 'GAME'});
+            // dispatch({type: 'START_TICK'});
+          },
+        }
+      ]}
+    />
   );
 }
 

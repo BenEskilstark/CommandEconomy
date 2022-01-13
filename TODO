@@ -1,20 +1,14 @@
 
 - bugs
   - bread inventory can go to NaN when price is set to 0?
-  - unrest shoots up as a soon as a commodity is unlocked
-    - auto-pause game?
-    - grace period to assign labor?
   - test that num laborers < laborers required works on a demand = 0 commodity
 
 - additional content
-  - add a modal when you hit play to explain the game
-    - tells you to assign laborers and set wages and prices
-    - tells you to press Start button when you're ready
-    - tells you not to let unrest hit 100%
   - 5 additional commodities (total of 9)
     - gold (gives you additional currency, has no demand)
     - cars (requires tons of labor)
     - research (reduces labor requirements for commodities)
+    - smart phones (increases rate of unrest accumulation and reduction)
   - tune demand values
 
 - maybe?

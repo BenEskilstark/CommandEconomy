@@ -32,19 +32,19 @@ body {
 
 h1 {
   font-size: 7em;
-  color: steelblue;
+  color: #CD5C5C;
   margin-bottom: 0;
   margin-top: 18px;
 }
 
 h2 {
   font-size: 5em;
-  color: steelblue;
+  color: #CD5C5C;
 }
 
 h3 {
   margin-top: 0;
-  color: steelblue;
+  color: #CD5C5C;
 }
 
 
@@ -63,7 +63,7 @@ button {
 }
 
 #PLAY_button {
-  background-color: steelblue;
+  background-color: #CD5C5C;
 }
 #PLAY_button:hover {
   background-color: #568f56;
