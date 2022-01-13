@@ -31,7 +31,7 @@ const config = {
         let adjCost = cost > 0 ? cost : 0.01;
         return Math.max(1, Math.floor(population / adjCost));
       },
-      unlocked: true,
+      unlocked: false,
     },
     {
       name: 'Pants',
@@ -44,13 +44,13 @@ const config = {
         let adjCost = cost > 0 ? cost : 0.01;
         return Math.max(1, Math.floor(population / adjCost));
       },
-      unlocked: true,
+      unlocked: false,
     },
     {
       name: 'Pocket Watches',
-      laborRequired: 5,
+      laborRequired: 10,
       laborAssigned: 0,
-      price: 5,
+      price: 15,
       inventory: 0,
       demand: 1,
       demandFn: (cost, population) => {
@@ -60,7 +60,7 @@ const config = {
     },
   ],
 
-  capital: 1000,
+  capital: 10000,
   labor: 10,
   laborGrowthRate: (pop, time) => {
     if (time % 10 != 0) {
@@ -71,7 +71,7 @@ const config = {
 
   wages: 10,
   unrest: 0,
-  laborSavings: 50,
+  laborSavings: 500,
 
   maxTickerLength: 7,
 };

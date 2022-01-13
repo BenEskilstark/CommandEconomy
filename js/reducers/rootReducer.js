@@ -68,6 +68,7 @@ const initGameState = () => {
     labor: config.labor,
     wages: config.wages,
     unrest: config.unrest,
+    ticksSinceUnrest: 0,
     laborSavings: config.laborSavings,
     people: [],
     ticker: ['Welcome to The Command Economy'],

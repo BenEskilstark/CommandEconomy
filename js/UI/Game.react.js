@@ -6,6 +6,7 @@ const InfoCard = require('./Components/InfoCard.react');
 const {displayMoney} = require('../utils/display');
 const {totalPopulation} = require('../selectors/selectors');
 const {initGameOverSystem} = require('../systems/gameOverSystem');
+const {initEventsSystem} = require('../systems/eventsSystem');
 const {useState, useMemo, useEffect} = React;
 
 import type {State, Action} from '../types';
@@ -22,6 +23,7 @@ function Game(props: Props): React.Node {
   // initializations
   useEffect(() => {
     initGameOverSystem(store);
+    initEventsSystem(store);
   }, []);
 
   const commodities = [];
@@ -118,12 +120,12 @@ function Info(props): React.Node {
       <Button
         label={game.tickInterval ? 'Pause Simulation' : 'Start Simulation'}
         onClick={() => {
-          dispatch({type: 'TICK'});
-          // if (game.tickInterval) {
-          //   dispatch({type: 'STOP_TICK'});
-          // } else {
-          //   dispatch({type: 'START_TICK'});
-          // }
+          // dispatch({type: 'TICK'});
+          if (game.tickInterval) {
+            dispatch({type: 'STOP_TICK'});
+          } else {
+            dispatch({type: 'START_TICK'});
+          }
         }}
       />
     </InfoCard>
