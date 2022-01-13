@@ -3,7 +3,6 @@
   - bread inventory can go to NaN when price is set to 0?
 
 - additional content
-  - handle demand < 1 selling something only every couple turns
   - button for producing additional types of commodities
   - make this growth necessary
   - recompute demand right when a commodity is unlocked

@@ -45,19 +45,26 @@ const gameReducer = (game, action) => {
         game.laborSavings += (laborCost - laborCostDeficit);
         // increase unrest if wages are not payable:
         if (laborCostDeficit > 0) {
+          game.unrest += laborCostDeficit / laborCost;
           appendTicker(game,
             "Unrest! Can't afford to pay labor for " + commodity.name +
-            "(Unrest: " + game.unrest.toFixed(2) + "%)",
+            " (Unrest: " + game.unrest.toFixed(2) + "%)",
           );
-          game.unrest += laborCostDeficit / laborCost;
         }
 
         // compute PRODUCTION of each commodity based on who you can
         // afford to pay
-        const production = Math.floor(
+        const fractionalProduction =
           (commodity.laborAssigned - laborCostDeficit / game.wages)
-            / commodity.laborRequired
-        );
+            / commodity.laborRequired;
+        let roundFn = Math.floor;
+        if (fractionalProduction != Math.floor(fractionalProduction)) {
+          const decimal = fractionalProduction - Math.floor(fractionalProduction);
+          if (Math.random() < decimal) {
+            roundFn = Math.ceil;
+          }
+        }
+        const production = roundFn(fractionalProduction);
         commodity.inventory += production;
 
         // compute SALES for each commodity
@@ -71,11 +78,11 @@ const gameReducer = (game, action) => {
         } = subtractWithDeficit(commodity.inventory, commodity.demand);
         // increase unrest if demand is not met:
         if (inventoryDeficit > 0) {
+          game.unrest += inventoryDeficit / commodity.demand;
           appendTicker(game,
             "Unrest! Inventory doesn't meet demand for " + commodity.name +
-            "(Unrest: " + game.unrest.toFixed(2) + "%)",
+            " (Unrest: " + game.unrest.toFixed(2) + "%)",
           );
-          game.unrest += inventoryDeficit / commodity.demand;
         }
         // LABOR SAVINGS
         const {
@@ -97,7 +104,7 @@ const gameReducer = (game, action) => {
           game.unrest += savingsDeficit / (commodity.price * demandMet);
           appendTicker(game,
             "Unrest! Labor can't afford demand for " + commodity.name +
-            "(Unrest: " + game.unrest.toFixed(2) + "%)",
+            " (Unrest: " + game.unrest.toFixed(2) + "%)",
           );
         }
       }
@@ -150,6 +157,12 @@ const gameReducer = (game, action) => {
           game.labor -= laborChange;
         }
       }
+      return game;
+    }
+    case 'UNLOCK_COMMODITY': {
+      const {name} = action;
+      const commodity = getCommodity(game, name);
+      commodity.unlocked = true;
       return game;
     }
   }

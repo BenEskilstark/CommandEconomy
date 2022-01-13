@@ -15,6 +15,7 @@ const InfoCard = (props): React.Node => {
         // width: 200,
         // height: 148,
         verticalAlign: 'top',
+        marginBottom: 4,
         marginLeft: 4,
         display: 'inline-block',
         padding: 4,

@@ -36,6 +36,7 @@ const rootReducer = (state: State, action: Action): State => {
     case 'INCREMENT_LABOR':
     case 'INCREMENT_WAGES':
     case 'APPEND_TICKER':
+    case 'UNLOCK_COMMODITY':
     case 'SET_GAME_OVER':
     case 'START_TICK':
     case 'STOP_TICK':

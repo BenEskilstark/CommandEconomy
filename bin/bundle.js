@@ -8,7 +8,7 @@ var config = {
     name: 'Bread',
     laborRequired: 0.1,
     laborAssigned: 0,
-    price: 1,
+    price: 2,
     inventory: 0,
     demand: 1,
     demandFn: function demandFn(cost, population) {
@@ -23,7 +23,7 @@ var config = {
     name: 'Shirts',
     laborRequired: 1,
     laborAssigned: 0,
-    price: 1,
+    price: 5,
     inventory: 0,
     demand: 1,
     demandFn: function demandFn(cost, population) {
@@ -35,7 +35,7 @@ var config = {
     name: 'Pants',
     laborRequired: 2,
     laborAssigned: 0,
-    price: 2,
+    price: 5,
     inventory: 0,
     demand: 1,
     demandFn: function demandFn(cost, population) {
@@ -69,7 +69,7 @@ var config = {
   unrest: 0,
   laborSavings: 50,
 
-  maxTickerLength: 5
+  maxTickerLength: 7
 };
 
 module.exports = {
@@ -169,13 +169,21 @@ var gameReducer = function gameReducer(game, action) {
             game.laborSavings += laborCost - laborCostDeficit;
             // increase unrest if wages are not payable:
             if (laborCostDeficit > 0) {
-              appendTicker(game, "Unrest! Can't afford to pay labor for " + commodity.name + "(Unrest: " + game.unrest.toFixed(2) + "%)");
               game.unrest += laborCostDeficit / laborCost;
+              appendTicker(game, "Unrest! Can't afford to pay labor for " + commodity.name + " (Unrest: " + game.unrest.toFixed(2) + "%)");
             }
 
             // compute PRODUCTION of each commodity based on who you can
             // afford to pay
-            var production = Math.floor((commodity.laborAssigned - laborCostDeficit / game.wages) / commodity.laborRequired);
+            var fractionalProduction = (commodity.laborAssigned - laborCostDeficit / game.wages) / commodity.laborRequired;
+            var roundFn = Math.floor;
+            if (fractionalProduction != Math.floor(fractionalProduction)) {
+              var decimal = fractionalProduction - Math.floor(fractionalProduction);
+              if (Math.random() < decimal) {
+                roundFn = Math.ceil;
+              }
+            }
+            var production = roundFn(fractionalProduction);
             commodity.inventory += production;
 
             // compute SALES for each commodity
@@ -190,8 +198,8 @@ var gameReducer = function gameReducer(game, action) {
 
 
             if (inventoryDeficit > 0) {
-              appendTicker(game, "Unrest! Inventory doesn't meet demand for " + commodity.name + "(Unrest: " + game.unrest.toFixed(2) + "%)");
               game.unrest += inventoryDeficit / commodity.demand;
+              appendTicker(game, "Unrest! Inventory doesn't meet demand for " + commodity.name + " (Unrest: " + game.unrest.toFixed(2) + "%)");
             }
             // LABOR SAVINGS
 
@@ -212,7 +220,7 @@ var gameReducer = function gameReducer(game, action) {
             // increase unrest if labor can't afford demand
             if (savingsDeficit > 0) {
               game.unrest += savingsDeficit / (commodity.price * demandMet);
-              appendTicker(game, "Unrest! Labor can't afford demand for " + commodity.name + "(Unrest: " + game.unrest.toFixed(2) + "%)");
+              appendTicker(game, "Unrest! Labor can't afford demand for " + commodity.name + " (Unrest: " + game.unrest.toFixed(2) + "%)");
             }
           }
 
@@ -294,6 +302,14 @@ var gameReducer = function gameReducer(game, action) {
             game.labor -= laborChange;
           }
         }
+        return game;
+      }
+    case 'UNLOCK_COMMODITY':
+      {
+        var _name2 = action.name;
+
+        var _commodity3 = getCommodity(game, _name2);
+        _commodity3.unlocked = true;
         return game;
       }
   }
@@ -383,6 +399,7 @@ var rootReducer = function rootReducer(state, action) {
     case 'INCREMENT_LABOR':
     case 'INCREMENT_WAGES':
     case 'APPEND_TICKER':
+    case 'UNLOCK_COMMODITY':
     case 'SET_GAME_OVER':
     case 'START_TICK':
     case 'STOP_TICK':
@@ -745,6 +762,7 @@ var InfoCard = function InfoCard(props) {
         // width: 200,
         // height: 148,
         verticalAlign: 'top',
+        marginBottom: 4,
         marginLeft: 4,
         display: 'inline-block',
         padding: 4
@@ -825,8 +843,18 @@ function Game(props) {
   return React.createElement(
     'div',
     null,
-    React.createElement(Ticker, { game: game }),
-    React.createElement(Info, { game: game, dispatch: dispatch }),
+    React.createElement(
+      'div',
+      {
+        style: {
+          overflow: 'hidden',
+          width: '100%',
+          marginBottom: 6
+        }
+      },
+      React.createElement(Info, { game: game, dispatch: dispatch }),
+      React.createElement(Ticker, { game: game })
+    ),
     commodities
   );
 }
@@ -847,12 +875,15 @@ function Ticker(props) {
     ));
   }
   return React.createElement(
-    'div',
+    InfoCard,
     {
       style: {
-        width: '100%',
-        height: 90,
-        padding: 4
+        height: 124,
+        padding: 4,
+        marginTop: 4,
+        marginRight: 4,
+        overflow: 'hidden',
+        display: 'block'
       }
     },
     messages
@@ -866,7 +897,14 @@ function Info(props) {
 
   return React.createElement(
     InfoCard,
-    null,
+    {
+      style: {
+        width: 375,
+        float: 'left',
+        marginTop: 4,
+        marginRight: 4
+      }
+    },
     React.createElement(
       'div',
       null,
@@ -911,11 +949,12 @@ function Info(props) {
     React.createElement(Button, {
       label: game.tickInterval ? 'Pause Simulation' : 'Start Simulation',
       onClick: function onClick() {
-        if (game.tickInterval) {
-          dispatch({ type: 'STOP_TICK' });
-        } else {
-          dispatch({ type: 'START_TICK' });
-        }
+        dispatch({ type: 'TICK' });
+        // if (game.tickInterval) {
+        //   dispatch({type: 'STOP_TICK'});
+        // } else {
+        //   dispatch({type: 'START_TICK'});
+        // }
       }
     })
   );
@@ -929,7 +968,11 @@ function Commodity(props) {
 
   return React.createElement(
     InfoCard,
-    null,
+    {
+      style: {
+        width: 375
+      }
+    },
     React.createElement(
       'div',
       null,

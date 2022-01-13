@@ -41,8 +41,16 @@ function Game(props: Props): React.Node {
 
   return (
     <div>
-      <Ticker game={game} />
-      <Info game={game} dispatch={dispatch} />
+      <div
+        style={{
+          overflow: 'hidden',
+          width: '100%',
+          marginBottom: 6,
+        }}
+      >
+        <Info game={game} dispatch={dispatch} />
+        <Ticker game={game} />
+      </div>
       {commodities}
     </div>
   );
@@ -65,15 +73,18 @@ function Ticker(props): React.Node {
     );
   }
   return (
-    <div
+    <InfoCard
       style={{
-        width: '100%',
-        height: 90,
+        height: 124,
         padding: 4,
+        marginTop: 4,
+        marginRight: 4,
+        overflow: 'hidden',
+        display: 'block',
       }}
     >
       {messages}
-    </div>
+    </InfoCard>
   );
 }
 
@@ -81,7 +92,14 @@ function Info(props): React.Node {
   const {game, dispatch} = props;
 
   return (
-    <InfoCard>
+    <InfoCard
+      style={{
+        width: 375,
+        float: 'left',
+        marginTop: 4,
+        marginRight: 4,
+      }}
+    >
       <div>Capital: ${game.capital}</div>
       <div>Unassigned Labor: {game.labor} / {totalPopulation(game)}</div>
       <div>
@@ -100,11 +118,12 @@ function Info(props): React.Node {
       <Button
         label={game.tickInterval ? 'Pause Simulation' : 'Start Simulation'}
         onClick={() => {
-          if (game.tickInterval) {
-            dispatch({type: 'STOP_TICK'});
-          } else {
-            dispatch({type: 'START_TICK'});
-          }
+          dispatch({type: 'TICK'});
+          // if (game.tickInterval) {
+          //   dispatch({type: 'STOP_TICK'});
+          // } else {
+          //   dispatch({type: 'START_TICK'});
+          // }
         }}
       />
     </InfoCard>
@@ -115,7 +134,11 @@ function Commodity(props): React.Node {
   const {commodity, game, dispatch} = props;
   const {name} = commodity;
   return (
-    <InfoCard>
+    <InfoCard
+      style={{
+        width: 375,
+      }}
+    >
       <div>Commodity: {commodity.name}</div>
       <div>Labor Required: {commodity.laborRequired}</div>
       <div>

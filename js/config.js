@@ -8,7 +8,7 @@ const config = {
       name: 'Bread',
       laborRequired: 0.1,
       laborAssigned: 0,
-      price: 1,
+      price: 2,
       inventory: 0,
       demand: 1,
       demandFn: (cost, population) => {
@@ -24,7 +24,7 @@ const config = {
       name: 'Shirts',
       laborRequired: 1,
       laborAssigned: 0,
-      price: 1,
+      price: 5,
       inventory: 0,
       demand: 1,
       demandFn: (cost, population) => {
@@ -37,7 +37,7 @@ const config = {
       name: 'Pants',
       laborRequired: 2,
       laborAssigned: 0,
-      price: 2,
+      price: 5,
       inventory: 0,
       demand: 1,
       demandFn: (cost, population) => {
@@ -73,7 +73,7 @@ const config = {
   unrest: 0,
   laborSavings: 50,
 
-  maxTickerLength: 5,
+  maxTickerLength: 7,
 };
 
 module.exports = {
