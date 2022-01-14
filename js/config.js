@@ -64,7 +64,7 @@ const config = {
     },
     {
       name: 'Gold',
-      laborRequired: 10,
+      laborRequired: 2,
       laborAssigned: 0,
       price: 0,
       inventory: 0,
@@ -79,7 +79,7 @@ const config = {
       name: 'Cars',
       laborRequired: 40,
       laborAssigned: 0,
-      price: 50,
+      price: 350,
       inventory: 0,
       demand: 1,
       demandFn: (game, cost, population) => {
@@ -123,7 +123,7 @@ const config = {
       name: 'Smart Phones',
       laborRequired: 30,
       laborAssigned: 0,
-      price: 75,
+      price: 250,
       inventory: 0,
       demand: 0,
       demandFn: (game, cost, population) => {
@@ -141,7 +141,8 @@ const config = {
     if (time % 10 != 0) {
       return 0;
     }
-    return Math.max(1, Math.floor(pop * pop * 0.001))
+    const popToUse = Math.min(pop, 400);
+    return Math.max(1, Math.floor(popToUse * popToUse * 0.0005))
   },
 
   wages: 10,
@@ -153,20 +154,20 @@ const config = {
     if (population <= 200) {
       return 1;
     }
-    if (population > 200) {
-      return 5;
-    }
-    if (population > 500) {
-      return 10;
-    }
-    if (population > 1000) {
-      return 25;
+    if (population > 3000) {
+      return 100;
     }
     if (population > 2000) {
       return 50;
     }
-    if (population > 3000) {
-      return 100;
+    if (population > 1000) {
+      return 25;
+    }
+    if (population > 500) {
+      return 10;
+    }
+    if (population > 200) {
+      return 5;
     }
   }
 };

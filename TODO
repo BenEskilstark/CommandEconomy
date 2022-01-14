@@ -1,11 +1,7 @@
 
 - playtest
-  - you end up charging more for pants and shirts than for watches
-  - if you set wages to 0 all inventories and your capital goes to NaN
 
 - bugs
-  - bread inventory can go to NaN when price is set to 0?
-  - test that num laborers < laborers required works on a demand = 0 commodity
 
 - additional content
   - tune demand values
@@ -17,5 +13,7 @@
   - how to handle the fact that money is zero-sum?
   - costs for production?
   - random effects/changes so that you can't reach perfect stability
+
+
 
 ./UI/Game.react.js:  // TODO: add button to pay to unlock next commodity

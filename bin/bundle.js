@@ -53,13 +53,14 @@ var config = {
     inventory: 0,
     demand: 1,
     demandFn: function demandFn(game, cost, population) {
-      return 1;
+      var adjCost = cost > 0 ? cost : 0.01;
+      return Math.max(1, Math.floor(1.5 * population / adjCost));
     },
     unlocked: false,
     numSold: 0
   }, {
     name: 'Gold',
-    laborRequired: 10,
+    laborRequired: 2,
     laborAssigned: 0,
     price: 0,
     inventory: 0,
@@ -73,7 +74,7 @@ var config = {
     name: 'Cars',
     laborRequired: 40,
     laborAssigned: 0,
-    price: 50,
+    price: 350,
     inventory: 0,
     demand: 1,
     demandFn: function demandFn(game, cost, population) {
@@ -135,7 +136,7 @@ var config = {
     name: 'Smart Phones',
     laborRequired: 30,
     laborAssigned: 0,
-    price: 75,
+    price: 250,
     inventory: 0,
     demand: 0,
     demandFn: function demandFn(game, cost, population) {
@@ -152,7 +153,7 @@ var config = {
     if (time % 10 != 0) {
       return 0;
     }
-    return Math.max(1, Math.floor(pop * pop * 0.001));
+    return Math.max(1, Math.floor(pop * pop * 0.0005));
   },
 
   wages: 10,
@@ -164,20 +165,20 @@ var config = {
     if (population <= 200) {
       return 1;
     }
-    if (population > 200) {
-      return 5;
-    }
-    if (population > 500) {
-      return 10;
-    }
-    if (population > 1000) {
-      return 25;
+    if (population > 3000) {
+      return 100;
     }
     if (population > 2000) {
       return 50;
     }
-    if (population > 3000) {
-      return 100;
+    if (population > 1000) {
+      return 25;
+    }
+    if (population > 500) {
+      return 10;
+    }
+    if (population > 200) {
+      return 5;
     }
   }
 };
@@ -290,7 +291,8 @@ var gameReducer = function gameReducer(game, action) {
 
             // compute PRODUCTION of each commodity based on who you can
             // afford to pay
-            var fractionalProduction = (commodity.laborAssigned - laborCostDeficit / game.wages) / commodity.laborRequired;
+            var adjWage = game.wages == 0 ? 0.01 : game.wages;
+            var fractionalProduction = (commodity.laborAssigned - laborCostDeficit / adjWage) / commodity.laborRequired;
             var roundFn = Math.floor;
             if (fractionalProduction != Math.floor(fractionalProduction)) {
               var decimal = fractionalProduction - Math.floor(fractionalProduction);
@@ -354,8 +356,9 @@ var gameReducer = function gameReducer(game, action) {
               appendTicker(game, "Unrest! Inventory doesn't meet demand for " + commodity.name + " (Unrest: " + game.unrest.toFixed(2) + "%)");
             }
             // LABOR SAVINGS
+            var adjPrice = commodity.price == 0 ? 0.01 : commodity.price;
 
-            var _subtractWithDeficit3 = subtractWithDeficit(game.laborSavings, commodity.price * demandMet, commodity.price /* step */
+            var _subtractWithDeficit3 = subtractWithDeficit(game.laborSavings, adjPrice * demandMet, adjPrice /* step */
             ),
                 nextLaborSavings = _subtractWithDeficit3.result,
                 savingsDeficit = _subtractWithDeficit3.deficit,
@@ -363,8 +366,8 @@ var gameReducer = function gameReducer(game, action) {
 
             game.laborSavings = nextLaborSavings;
             game.capital += revenue;
-            var inventorySold = Math.floor(revenue / commodity.price);
-            if (commodity.price == 0) {
+            var inventorySold = Math.floor(revenue / adjPrice);
+            if (adjPrice == 0) {
               commodity.inventory = Math.max(0, commodity.inventory - commodity.demand);
             } else {
               commodity.inventory -= inventorySold;
@@ -373,7 +376,7 @@ var gameReducer = function gameReducer(game, action) {
 
             // increase unrest if labor can't afford demand
             if (savingsDeficit > 0) {
-              game.unrest += unrestFactor * savingsDeficit / (commodity.price * demandMet);
+              game.unrest += unrestFactor * savingsDeficit / (adjPrice * demandMet);
               game.ticksSinceUnrest = 0;
               appendTicker(game, "Unrest! Labor can't afford demand for " + commodity.name + " (Unrest: " + game.unrest.toFixed(2) + "%)");
             }
@@ -395,10 +398,7 @@ var gameReducer = function gameReducer(game, action) {
           }
         }
 
-        var totalLabor = game.labor;
-        game.commodities.forEach(function (c) {
-          return totalLabor += c.laborAssigned;
-        });
+        var totalLabor = totalPopulation(game);
         game.labor += config.laborGrowthRate(totalLabor, game.time);
 
         // check if you lost
@@ -759,6 +759,8 @@ var initEventsSystem = function initEventsSystem(store) {
 
     if (time == 120) {
       dispatch({ type: 'APPEND_TICKER', message: 'Industrial process for shirts discovered'
+      });
+      dispatch({ type: 'APPEND_TICKER', message: 'Simulation paused while you reconfigure the economy. Press Start to resume'
       });
       dispatch({ type: 'UNLOCK_COMMODITY', name: 'Shirts' });
       dispatch({ type: 'STOP_TICK' });

@@ -17,6 +17,9 @@ const initEventsSystem = (store) => {
       dispatch({type: 'APPEND_TICKER', message:
         'Industrial process for shirts discovered'
       });
+      dispatch({type: 'APPEND_TICKER', message:
+        'Simulation paused while you reconfigure the economy. Press Start to resume',
+      });
       dispatch({type: 'UNLOCK_COMMODITY', name: 'Shirts'});
       dispatch({type: 'STOP_TICK'});
     }

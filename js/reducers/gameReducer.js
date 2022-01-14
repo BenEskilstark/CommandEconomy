@@ -59,8 +59,9 @@ const gameReducer = (game, action) => {
 
         // compute PRODUCTION of each commodity based on who you can
         // afford to pay
+        const adjWage = game.wages == 0 ? 0.01 : game.wages;
         const fractionalProduction =
-          (commodity.laborAssigned - laborCostDeficit / game.wages)
+          (commodity.laborAssigned - laborCostDeficit / adjWage)
             / commodity.laborRequired;
         let roundFn = Math.floor;
         if (fractionalProduction != Math.floor(fractionalProduction)) {
@@ -105,16 +106,17 @@ const gameReducer = (game, action) => {
           );
         }
         // LABOR SAVINGS
+        const adjPrice = commodity.price == 0 ? 0.01 : commodity.price;
         const {
           result: nextLaborSavings, deficit: savingsDeficit, amount: revenue,
         } = subtractWithDeficit(
-          game.laborSavings, commodity.price * demandMet,
-          commodity.price /* step */
+          game.laborSavings, adjPrice * demandMet,
+          adjPrice /* step */
         );
         game.laborSavings = nextLaborSavings;
         game.capital += revenue;
-        const inventorySold = Math.floor(revenue / commodity.price);
-        if (commodity.price == 0) {
+        const inventorySold = Math.floor(revenue / adjPrice);
+        if (adjPrice == 0) {
           commodity.inventory = Math.max(0, commodity.inventory - commodity.demand);
         } else {
           commodity.inventory -= inventorySold;
@@ -123,7 +125,7 @@ const gameReducer = (game, action) => {
 
         // increase unrest if labor can't afford demand
         if (savingsDeficit > 0) {
-          game.unrest += unrestFactor * savingsDeficit / (commodity.price * demandMet);
+          game.unrest += unrestFactor * savingsDeficit / (adjPrice * demandMet);
           game.ticksSinceUnrest = 0;
           appendTicker(game,
             "Unrest! Labor can't afford demand for " + commodity.name +
@@ -133,8 +135,7 @@ const gameReducer = (game, action) => {
       }
 
       // labor pool
-      let totalLabor = game.labor;
-      game.commodities.forEach(c => totalLabor += c.laborAssigned);
+      const totalLabor = totalPopulation(game);
       game.labor += config.laborGrowthRate(totalLabor, game.time)
 
       // check if you lost
