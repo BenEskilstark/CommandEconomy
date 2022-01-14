@@ -149,14 +149,16 @@ function Commodity(props): React.Node {
       <div>Labor Required: {commodity.laborRequired}</div>
       <div>
         Labor Assigned: {commodity.laborAssigned}
-        <Button label={"Unassign x " + assignMult}
+        <div style={{display: 'inline-block'}}>
+        <Button label={assignMult == 1 ? 'Unassign' : "Unassign x" + assignMult}
           onClick={() => dispatch({type: 'INCREMENT_LABOR', laborChange: -1 * assignMult, name})}
           disabled={commodity.laborAssigned <= 0}
         />
-        <Button label={"Assign x " + assignMult}
+        <Button label={assignMult == 1 ? 'Assign' : "Assign x" + assignMult}
           onClick={() => dispatch({type: 'INCREMENT_LABOR', laborChange: 1 * assignMult, name})}
           disabled={game.labor <= 0}
         />
+        </div>
       </div>
       <div>
         Price: ${commodity.price}

@@ -181,15 +181,14 @@ const gameReducer = (game, action) => {
       const {name, laborChange} = action;
       const commodity = getCommodity(game, name);
       if (laborChange < 0) { // unassigning labor
-        if (commodity.laborAssigned >= laborChange) {
-          commodity.laborAssigned += laborChange;
-          game.labor -= laborChange;
-        }
+        const {amount: laborAmount} =
+          subtractWithDeficit(commodity.laborAssigned, -1 * laborChange);
+        commodity.laborAssigned -= laborAmount;
+        game.labor += laborAmount;
       } else { // assigning labor
-        if (game.labor >= laborChange) {
-          commodity.laborAssigned += laborChange;
-          game.labor -= laborChange;
-        }
+        const {amount: laborAmount} = subtractWithDeficit(game.labor, laborChange);
+        commodity.laborAssigned += laborAmount;
+        game.labor -= laborAmount;
       }
       return game;
     }

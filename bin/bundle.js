@@ -159,7 +159,27 @@ var config = {
   unrest: 0,
   laborSavings: 500,
 
-  maxTickerLength: 7
+  maxTickerLength: 7,
+  popToAssignFn: function popToAssignFn(population) {
+    if (population <= 200) {
+      return 1;
+    }
+    if (population > 200) {
+      return 5;
+    }
+    if (population > 500) {
+      return 10;
+    }
+    if (population > 1000) {
+      return 25;
+    }
+    if (population > 2000) {
+      return 50;
+    }
+    if (population > 3000) {
+      return 100;
+    }
+  }
 };
 
 module.exports = {
@@ -388,7 +408,9 @@ var gameReducer = function gameReducer(game, action) {
 
         // reduce unrest a bit
         if (game.ticksSinceUnrest > 20 && game.unrest > 0) {
-          appendTicker(game, 'The stability of the economy is causing the unrest to die down');
+          if (game.ticksSinceUnrest == 21) {
+            appendTicker(game, 'The stability of the economy is causing the unrest to die down');
+          }
           game.unrest -= unrestFactor * game.ticksSinceUnrest / 1000;
           if (game.unrest < 0) {
             game.unrest = 0;
@@ -435,16 +457,18 @@ var gameReducer = function gameReducer(game, action) {
         var _commodity2 = getCommodity(game, _name);
         if (laborChange < 0) {
           // unassigning labor
-          if (_commodity2.laborAssigned >= laborChange) {
-            _commodity2.laborAssigned += laborChange;
-            game.labor -= laborChange;
-          }
+          var _subtractWithDeficit4 = subtractWithDeficit(_commodity2.laborAssigned, -1 * laborChange),
+              laborAmount = _subtractWithDeficit4.amount;
+
+          _commodity2.laborAssigned -= laborAmount;
+          game.labor += laborAmount;
         } else {
           // assigning labor
-          if (game.labor >= laborChange) {
-            _commodity2.laborAssigned += laborChange;
-            game.labor -= laborChange;
-          }
+          var _subtractWithDeficit5 = subtractWithDeficit(game.labor, laborChange),
+              _laborAmount = _subtractWithDeficit5.amount;
+
+          _commodity2.laborAssigned += _laborAmount;
+          game.labor -= _laborAmount;
         }
         return game;
       }
@@ -1078,17 +1102,20 @@ var React = require('react');
 var Button = require('./Components/Button.react');
 var InfoCard = require('./Components/InfoCard.react');
 
-var _require = require('../utils/display'),
-    displayMoney = _require.displayMoney;
+var _require = require('../config'),
+    config = _require.config;
 
-var _require2 = require('../selectors/selectors'),
-    totalPopulation = _require2.totalPopulation;
+var _require2 = require('../utils/display'),
+    displayMoney = _require2.displayMoney;
 
-var _require3 = require('../systems/gameOverSystem'),
-    initGameOverSystem = _require3.initGameOverSystem;
+var _require3 = require('../selectors/selectors'),
+    totalPopulation = _require3.totalPopulation;
 
-var _require4 = require('../systems/eventsSystem'),
-    initEventsSystem = _require4.initEventsSystem;
+var _require4 = require('../systems/gameOverSystem'),
+    initGameOverSystem = _require4.initGameOverSystem;
+
+var _require5 = require('../systems/eventsSystem'),
+    initEventsSystem = _require5.initEventsSystem;
 
 var useState = React.useState,
     useMemo = React.useMemo,
@@ -1269,6 +1296,8 @@ function Commodity(props) {
       dispatch = props.dispatch;
   var name = commodity.name;
 
+
+  var assignMult = config.popToAssignFn(totalPopulation(game));
   return React.createElement(
     InfoCard,
     {
@@ -1293,18 +1322,22 @@ function Commodity(props) {
       null,
       'Labor Assigned: ',
       commodity.laborAssigned,
-      React.createElement(Button, { label: 'Unassign',
-        onClick: function onClick() {
-          return dispatch({ type: 'INCREMENT_LABOR', laborChange: -1, name: name });
-        },
-        disabled: commodity.laborAssigned <= 0
-      }),
-      React.createElement(Button, { label: 'Assign',
-        onClick: function onClick() {
-          return dispatch({ type: 'INCREMENT_LABOR', laborChange: 1, name: name });
-        },
-        disabled: game.labor <= 0
-      })
+      React.createElement(
+        'div',
+        { style: { display: 'inline-block' } },
+        React.createElement(Button, { label: assignMult == 1 ? 'Unassign' : "Unassign x" + assignMult,
+          onClick: function onClick() {
+            return dispatch({ type: 'INCREMENT_LABOR', laborChange: -1 * assignMult, name: name });
+          },
+          disabled: commodity.laborAssigned <= 0
+        }),
+        React.createElement(Button, { label: assignMult == 1 ? 'Assign' : "Assign x" + assignMult,
+          onClick: function onClick() {
+            return dispatch({ type: 'INCREMENT_LABOR', laborChange: 1 * assignMult, name: name });
+          },
+          disabled: game.labor <= 0
+        })
+      )
     ),
     React.createElement(
       'div',
@@ -1339,7 +1372,7 @@ function Commodity(props) {
 }
 
 module.exports = Game;
-},{"../selectors/selectors":6,"../systems/eventsSystem":7,"../systems/gameOverSystem":8,"../utils/display":17,"./Components/Button.react":9,"./Components/InfoCard.react":10,"react":27}],13:[function(require,module,exports){
+},{"../config":1,"../selectors/selectors":6,"../systems/eventsSystem":7,"../systems/gameOverSystem":8,"../utils/display":17,"./Components/Button.react":9,"./Components/InfoCard.react":10,"react":27}],13:[function(require,module,exports){
 'use strict';
 
 var React = require('react');

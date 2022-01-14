@@ -56,7 +56,8 @@ const config = {
       inventory: 0,
       demand: 1,
       demandFn: (game, cost, population) => {
-        return 1;
+        let adjCost = cost > 0 ? cost : 0.01;
+        return Math.max(1, Math.floor(1.5 * population / adjCost));
       },
       unlocked: false,
       numSold: 0,
