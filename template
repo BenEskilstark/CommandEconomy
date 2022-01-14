@@ -40,13 +40,13 @@ sudo npm install --save redux
 # sudo npm install engine.io
 
 #eureca
-# npm install express --save
+npm install express --save
 
 # react native server
 # npm install -g expo-cli
 
 # postgres
-# npm install pg
+npm install pg
 
 # clientside REST
 # npm install axios

@@ -148,6 +148,26 @@ const config = {
   laborSavings: 500,
 
   maxTickerLength: 7,
+  popToAssignFn: (population) => {
+    if (population <= 200) {
+      return 1;
+    }
+    if (population > 200) {
+      return 5;
+    }
+    if (population > 500) {
+      return 10;
+    }
+    if (population > 1000) {
+      return 25;
+    }
+    if (population > 2000) {
+      return 50;
+    }
+    if (population > 3000) {
+      return 100;
+    }
+  }
 };
 
 module.exports = {

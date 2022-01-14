@@ -3,6 +3,7 @@
 const React = require('react');
 const Button = require('./Components/Button.react');
 const InfoCard = require('./Components/InfoCard.react');
+const {config} = require('../config');
 const {displayMoney} = require('../utils/display');
 const {totalPopulation} = require('../selectors/selectors');
 const {initGameOverSystem} = require('../systems/gameOverSystem');
@@ -136,6 +137,8 @@ function Info(props): React.Node {
 function Commodity(props): React.Node {
   const {commodity, game, dispatch} = props;
   const {name} = commodity;
+
+  const assignMult = config.popToAssignFn(totalPopulation(game));
   return (
     <InfoCard
       style={{
@@ -146,12 +149,12 @@ function Commodity(props): React.Node {
       <div>Labor Required: {commodity.laborRequired}</div>
       <div>
         Labor Assigned: {commodity.laborAssigned}
-        <Button label="Unassign"
-          onClick={() => dispatch({type: 'INCREMENT_LABOR', laborChange: -1, name})}
+        <Button label={"Unassign x " + assignMult}
+          onClick={() => dispatch({type: 'INCREMENT_LABOR', laborChange: -1 * assignMult, name})}
           disabled={commodity.laborAssigned <= 0}
         />
-        <Button label="Assign"
-          onClick={() => dispatch({type: 'INCREMENT_LABOR', laborChange: 1, name})}
+        <Button label={"Assign x " + assignMult}
+          onClick={() => dispatch({type: 'INCREMENT_LABOR', laborChange: 1 * assignMult, name})}
           disabled={game.labor <= 0}
         />
       </div>
