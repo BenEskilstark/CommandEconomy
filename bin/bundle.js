@@ -319,8 +319,12 @@ var gameReducer = function gameReducer(game, action) {
                 for (var _iterator2 = game.commodities[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                   var c = _step2.value;
 
-                  if (commodity.laborRequired <= 0.1) continue;
-                  commodity.laborRequired -= commodity.inventory / 10;
+                  if (c.name == 'Research') continue;
+                  if (c.laborRequired <= 0.1) continue;
+                  c.laborRequired -= c.inventory / 20;
+                  if (c.laborRequired < 0.1) {
+                    c.laborRequired = 0.1;
+                  }
                 }
               } catch (err) {
                 _didIteratorError2 = true;
@@ -807,7 +811,7 @@ var initEventsSystem = function initEventsSystem(store) {
       dispatch({ type: 'STOP_TICK' });
     }
 
-    if (time == 900) {
+    if (time == 800) {
       dispatch({ type: 'APPEND_TICKER', message: 'Our researchers have created "Smart Phones" for use by the people'
       });
       dispatch({ type: 'APPEND_TICKER', message: 'Smart phones cause unrest to increase faster during economic instability'

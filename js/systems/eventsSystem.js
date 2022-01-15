@@ -71,7 +71,7 @@ const initEventsSystem = (store) => {
       dispatch({type: 'STOP_TICK'});
     }
 
-    if (time == 900) {
+    if (time == 800) {
       dispatch({type: 'APPEND_TICKER', message:
         'Our researchers have created "Smart Phones" for use by the people',
       });

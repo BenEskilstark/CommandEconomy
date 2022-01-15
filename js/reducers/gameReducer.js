@@ -81,8 +81,12 @@ const gameReducer = (game, action) => {
         }
         if (commodity.name == 'Research') {
           for (const c of game.commodities) {
-            if (commodity.laborRequired <= 0.1) continue;
-            commodity.laborRequired -= commodity.inventory / 10;
+            if (c.name == 'Research') continue;
+            if (c.laborRequired <= 0.1) continue;
+            c.laborRequired -= c.inventory / 20;
+            if (c.laborRequired < 0.1) {
+              c.laborRequired = 0.1;
+            }
           }
           commodity.inventory = 0;
         }

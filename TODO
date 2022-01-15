@@ -1,5 +1,7 @@
 
 - playtest
+  - research
+    - print labor required as a toFixed()
   - money can become a float
   - labor is less likely to be able to afford earlier commodities
     as they don't all get paid until later
