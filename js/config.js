@@ -64,7 +64,7 @@ const config = {
     },
     {
       name: 'Gold',
-      laborRequired: 2,
+      laborRequired: 0.25,
       laborAssigned: 0,
       price: 0,
       inventory: 0,
@@ -91,7 +91,7 @@ const config = {
     },
     {
       name: 'Oil',
-      laborRequired: 2,
+      laborRequired: 1,
       laborAssigned: 0,
       price: 5,
       inventory: 0,
@@ -141,7 +141,7 @@ const config = {
     if (time % 10 != 0) {
       return 0;
     }
-    const popToUse = Math.min(pop, 400);
+    const popToUse = Math.min(pop, 200);
     return Math.max(1, Math.floor(popToUse * popToUse * 0.001))
   },
 
