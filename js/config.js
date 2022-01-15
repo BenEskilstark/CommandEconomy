@@ -142,7 +142,7 @@ const config = {
       return 0;
     }
     const popToUse = Math.min(pop, 400);
-    return Math.max(1, Math.floor(popToUse * popToUse * 0.0005))
+    return Math.max(1, Math.floor(popToUse * popToUse * 0.001))
   },
 
   wages: 10,

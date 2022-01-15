@@ -153,7 +153,8 @@ var config = {
     if (time % 10 != 0) {
       return 0;
     }
-    return Math.max(1, Math.floor(pop * pop * 0.0005));
+    var popToUse = Math.min(pop, 400);
+    return Math.max(1, Math.floor(popToUse * popToUse * 0.001));
   },
 
   wages: 10,
