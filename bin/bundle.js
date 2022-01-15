@@ -60,7 +60,7 @@ var config = {
     numSold: 0
   }, {
     name: 'Gold',
-    laborRequired: 2,
+    laborRequired: 0.25,
     laborAssigned: 0,
     price: 0,
     inventory: 0,
@@ -85,7 +85,7 @@ var config = {
     numSold: 0
   }, {
     name: 'Oil',
-    laborRequired: 2,
+    laborRequired: 1,
     laborAssigned: 0,
     price: 5,
     inventory: 0,
@@ -153,7 +153,7 @@ var config = {
     if (time % 10 != 0) {
       return 0;
     }
-    var popToUse = Math.min(pop, 400);
+    var popToUse = Math.min(pop, 200);
     return Math.max(1, Math.floor(popToUse * popToUse * 0.001));
   },
 
