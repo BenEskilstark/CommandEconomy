@@ -1,24 +1,22 @@
 
 - playtest
-  - research
-    - print labor required as a toFixed()
-  - money can become a float
   - labor is less likely to be able to afford earlier commodities
     as they don't all get paid until later
 
 - bugs
+  - money can become a float
 
 - additional content
-  - tune demand values
+  - win condition of post scarcity society
+    - all labor required is 0.1 (except research)
+    - money at some huge value
+    - unrest at 0
+
 
 - maybe?
   - color numbers red that are decreasing?
   - button for producing additional types of commodities?
-  - reduce productivity based on unrest?
-  - how to handle the fact that money is zero-sum?
-  - costs for production?
   - random effects/changes so that you can't reach perfect stability
 
 
 
-./UI/Game.react.js:  // TODO: add button to pay to unlock next commodity

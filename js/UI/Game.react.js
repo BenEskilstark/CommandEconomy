@@ -40,8 +40,6 @@ function Game(props: Props): React.Node {
     }
   }
 
-  // TODO: add button to pay to unlock next commodity
-
   return (
     <div>
       <div
@@ -138,7 +136,8 @@ function Commodity(props): React.Node {
   const {commodity, game, dispatch} = props;
   const {name} = commodity;
 
-  const assignMult = config.popToAssignFn(totalPopulation(game));
+  const assignMult = config.popToAssignFn(commodity.laborAssigned);
+  const priceMult = config.priceRaiseFn(commodity.price);
   return (
     <InfoCard
       style={{
@@ -146,7 +145,7 @@ function Commodity(props): React.Node {
       }}
     >
       <div>Commodity: {commodity.name}</div>
-      <div>Labor Required: {commodity.laborRequired}</div>
+      <div>Labor Required: {commodity.laborRequired.toFixed(1)}</div>
       <div>
         Labor Assigned: {commodity.laborAssigned}
         <div style={{display: 'inline-block'}}>
@@ -162,12 +161,12 @@ function Commodity(props): React.Node {
       </div>
       <div>
         Price: ${commodity.price}
-        <Button label="Lower"
-          onClick={() => dispatch({type: 'INCREMENT_PRICE', priceChange: -1, name})}
+        <Button label={priceMult == 1 ? "Lower" : "Lower x" + priceMult}
+          onClick={() => dispatch({type: 'INCREMENT_PRICE', priceChange: -1 * priceMult, name})}
           disabled={commodity.price <= 0}
         />
-        <Button label="Raise"
-          onClick={() => dispatch({type: 'INCREMENT_PRICE', priceChange: 1, name})}
+        <Button label={priceMult == 1 ? "Raise" : "Raise x" + priceMult}
+          onClick={() => dispatch({type: 'INCREMENT_PRICE', priceChange: 1 * priceMult, name})}
         />
       </div>
       <div>Inventory: {commodity.inventory}</div>

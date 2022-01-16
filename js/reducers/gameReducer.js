@@ -83,7 +83,8 @@ const gameReducer = (game, action) => {
           for (const c of game.commodities) {
             if (c.name == 'Research') continue;
             if (c.laborRequired <= 0.1) continue;
-            c.laborRequired -= c.inventory / 20;
+            if (c.unlocked == false) continue;
+            c.laborRequired -= commodity.inventory / 20;
             if (c.laborRequired < 0.1) {
               c.laborRequired = 0.1;
             }
@@ -178,6 +179,10 @@ const gameReducer = (game, action) => {
       const {name, priceChange} = action;
       const commodity = getCommodity(game, name);
       commodity.price += priceChange;
+      if (commodity.price < 0) {
+        commodity.price = 0;
+      }
+
       commodity.demand = commodity.demandFn(game, commodity.price, totalPopulation(game));
 
       return game;

@@ -99,7 +99,7 @@ const config = {
       demandFn: (game, cost, population) => {
         for (const commodity of game.commodities) {
           if (commodity.name == 'Cars') {
-            return commodity.numSold;
+            return Math.min(commodity.numSold, population);
           }
         }
       },
@@ -169,7 +169,22 @@ const config = {
     if (population > 200) {
       return 5;
     }
-  }
+  },
+  priceRaiseFn: (cost) => {
+    if (cost < 20) {
+      return 1;
+    }
+    if (cost < 40) {
+      return 2;
+    }
+    if (cost < 100) {
+      return 5;
+    }
+    if (cost < 200) {
+      return 10;
+    }
+    return 25;
+  },
 };
 
 module.exports = {

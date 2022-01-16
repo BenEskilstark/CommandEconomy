@@ -100,7 +100,7 @@ var config = {
           var commodity = _step.value;
 
           if (commodity.name == 'Cars') {
-            return commodity.numSold;
+            return Math.min(commodity.numSold, population);
           }
         }
       } catch (err) {
@@ -181,6 +181,21 @@ var config = {
     if (population > 200) {
       return 5;
     }
+  },
+  priceRaiseFn: function priceRaiseFn(cost) {
+    if (cost < 20) {
+      return 1;
+    }
+    if (cost < 40) {
+      return 2;
+    }
+    if (cost < 100) {
+      return 5;
+    }
+    if (cost < 200) {
+      return 10;
+    }
+    return 25;
   }
 };
 
@@ -321,7 +336,8 @@ var gameReducer = function gameReducer(game, action) {
 
                   if (c.name == 'Research') continue;
                   if (c.laborRequired <= 0.1) continue;
-                  c.laborRequired -= c.inventory / 20;
+                  if (c.unlocked == false) continue;
+                  c.laborRequired -= commodity.inventory / 20;
                   if (c.laborRequired < 0.1) {
                     c.laborRequired = 0.1;
                   }
@@ -450,6 +466,10 @@ var gameReducer = function gameReducer(game, action) {
 
         var _commodity = getCommodity(game, name);
         _commodity.price += priceChange;
+        if (_commodity.price < 0) {
+          _commodity.price = 0;
+        }
+
         _commodity.demand = _commodity.demandFn(game, _commodity.price, totalPopulation(game));
 
         return game;
@@ -1159,8 +1179,6 @@ function Game(props) {
         }));
       }
     }
-
-    // TODO: add button to pay to unlock next commodity
   } catch (err) {
     _didIteratorError = true;
     _iteratorError = err;
@@ -1304,7 +1322,8 @@ function Commodity(props) {
   var name = commodity.name;
 
 
-  var assignMult = config.popToAssignFn(totalPopulation(game));
+  var assignMult = config.popToAssignFn(commodity.laborAssigned);
+  var priceMult = config.priceRaiseFn(commodity.price);
   return React.createElement(
     InfoCard,
     {
@@ -1322,7 +1341,7 @@ function Commodity(props) {
       'div',
       null,
       'Labor Required: ',
-      commodity.laborRequired
+      commodity.laborRequired.toFixed(1)
     ),
     React.createElement(
       'div',
@@ -1351,15 +1370,15 @@ function Commodity(props) {
       null,
       'Price: $',
       commodity.price,
-      React.createElement(Button, { label: 'Lower',
+      React.createElement(Button, { label: priceMult == 1 ? "Lower" : "Lower x" + priceMult,
         onClick: function onClick() {
-          return dispatch({ type: 'INCREMENT_PRICE', priceChange: -1, name: name });
+          return dispatch({ type: 'INCREMENT_PRICE', priceChange: -1 * priceMult, name: name });
         },
         disabled: commodity.price <= 0
       }),
-      React.createElement(Button, { label: 'Raise',
+      React.createElement(Button, { label: priceMult == 1 ? "Raise" : "Raise x" + priceMult,
         onClick: function onClick() {
-          return dispatch({ type: 'INCREMENT_PRICE', priceChange: 1, name: name });
+          return dispatch({ type: 'INCREMENT_PRICE', priceChange: 1 * priceMult, name: name });
         }
       })
     ),
