@@ -1,20 +1,10 @@
 
 - playtest
-  - add clicker tag
-  - set width to 1172
-  - push with fix for assignment
 
 - bugs
   - money can become a float
 
 - additional content
-  - itch
-    - cover image
-    - screenshots
-    - description
-  - electron
-    - quit button
-
 
 - maybe?
   - color numbers red that are decreasing?
