@@ -151,24 +151,19 @@ const config = {
 
   maxTickerLength: 7,
   popToAssignFn: (population) => {
-    if (population <= 200) {
+    if (population <= 40) {
       return 1;
     }
-    if (population > 3000) {
-      return 100;
+    if (population < 100) {
+      return 2;
     }
-    if (population > 2000) {
-      return 50;
-    }
-    if (population > 1000) {
-      return 25;
-    }
-    if (population > 500) {
-      return 10;
-    }
-    if (population > 200) {
+    if (population < 250) {
       return 5;
     }
+    if (population < 400) {
+      return 10;
+    }
+    return 25;
   },
   priceRaiseFn: (cost) => {
     if (cost < 20) {
