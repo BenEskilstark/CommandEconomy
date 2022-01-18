@@ -27,7 +27,8 @@ const initGameOverSystem = (store) => {
     let {gameOver} = game;
 
     // handle win conditions
-    if (false) {
+    const gameWon = checkWin(game);
+    if (gameWon) {
       handleGameWon(store, dispatch, state, 'win');
     }
 
@@ -38,6 +39,20 @@ const initGameOverSystem = (store) => {
 
   });
 };
+
+const checkWin = (game) => {
+  if (game.capital < 250000) {
+    return false;
+  }
+  if (game.unrest > 0) {
+    return false;
+  }
+  for (const commodity of game.commodities) {
+    if (!commodity.unlocked) return false;
+    if (commodity.name != 'Research' && commodity.laborRequired > 0.1) return false;
+  }
+  return true;
+}
 
 const handleGameLoss = (store, dispatch, state, reason): void => {
   const {game} = state;
@@ -79,6 +94,38 @@ const handleGameLoss = (store, dispatch, state, reason): void => {
 const handleGameWon = (store, dispatch, state, reason): void => {
   const {game} = state;
   dispatch({type: 'STOP_TICK'});
+
+  const returnButton = {
+    label: 'Back to Main Menu',
+    onClick: () => {
+      dispatch({type: 'DISMISS_MODAL'});
+      dispatch({type: 'SET_SCREEN', screen: 'LOBBY'});
+    }
+  };
+  const resetButton = {
+    label: 'Restart',
+    onClick: () => {
+      dispatch({type: 'DISMISS_MODAL'});
+      dispatch({type: 'SET_SCREEN', screen: 'LOBBY'});
+      dispatch({type: 'START', screen: 'GAME'});
+    },
+  };
+  const buttons = [returnButton, resetButton];
+
+  const body = (
+    <div>
+    {`You reached a post-scarcity society that will endure far into the future! It took you
+      ${game.time} days`}
+    </div>
+  );
+
+  dispatch({type: 'SET_MODAL',
+    modal: (<Modal
+      title={'Game Won!'}
+      body={body}
+      buttons={buttons}
+    />),
+  });
 };
 
 module.exports = {initGameOverSystem};

@@ -34,9 +34,19 @@ function Main(props: Props): React.Node {
 
 function Lobby(props): React.Node {
   return (
-    <div>
+    <div
+      style={{
+        width: 300,
+        margin: 'auto',
+        marginTop: 150,
+      }}
+    >
       <Button
         label="Play"
+        style={{
+          width: 300,
+          height: 30,
+        }}
         onClick={() => {
           props.dispatch({
             type: 'SET_MODAL',

@@ -841,6 +841,20 @@ var initEventsSystem = function initEventsSystem(store) {
       dispatch({ type: 'UNLOCK_COMMODITY', name: 'Smart Phones' });
       dispatch({ type: 'STOP_TICK' });
     }
+
+    if (time == 850) {
+      dispatch({ type: 'APPEND_TICKER', message: 'Post-scarcity society is in sight! If we can achieve:'
+      });
+      dispatch({ type: 'APPEND_TICKER', message: '- $250,000 of capital'
+      });
+      dispatch({ type: 'APPEND_TICKER', message: '- all labor required for commodities down to 0.1 (other than research)'
+      });
+      dispatch({ type: 'APPEND_TICKER', message: '- 0% unrest'
+      });
+      dispatch({ type: 'APPEND_TICKER', message: 'Then this command economy will work and you will win!'
+      });
+      dispatch({ type: 'STOP_TICK' });
+    }
   });
 };
 
@@ -879,7 +893,8 @@ var initGameOverSystem = function initGameOverSystem(store) {
 
     // handle win conditions
 
-    if (false) {
+    var gameWon = checkWin(game);
+    if (gameWon) {
       handleGameWon(store, dispatch, state, 'win');
     }
 
@@ -888,6 +903,42 @@ var initGameOverSystem = function initGameOverSystem(store) {
       handleGameLoss(store, dispatch, state, 'loss');
     }
   });
+};
+
+var checkWin = function checkWin(game) {
+  if (game.capital < 250000) {
+    return false;
+  }
+  if (game.unrest > 0) {
+    return false;
+  }
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = game.commodities[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var commodity = _step.value;
+
+      if (!commodity.unlocked) return false;
+      if (commodity.name != 'Research' && commodity.laborRequired > 0.1) return false;
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return true;
 };
 
 var handleGameLoss = function handleGameLoss(store, dispatch, state, reason) {
@@ -931,6 +982,37 @@ var handleGameWon = function handleGameWon(store, dispatch, state, reason) {
   var game = state.game;
 
   dispatch({ type: 'STOP_TICK' });
+
+  var returnButton = {
+    label: 'Back to Main Menu',
+    onClick: function onClick() {
+      dispatch({ type: 'DISMISS_MODAL' });
+      dispatch({ type: 'SET_SCREEN', screen: 'LOBBY' });
+    }
+  };
+  var resetButton = {
+    label: 'Restart',
+    onClick: function onClick() {
+      dispatch({ type: 'DISMISS_MODAL' });
+      dispatch({ type: 'SET_SCREEN', screen: 'LOBBY' });
+      dispatch({ type: 'START', screen: 'GAME' });
+    }
+  };
+  var buttons = [returnButton, resetButton];
+
+  var body = React.createElement(
+    'div',
+    null,
+    'You reached a post-scarcity society that will endure far into the future! It took you\n      ' + game.time + ' days'
+  );
+
+  dispatch({ type: 'SET_MODAL',
+    modal: React.createElement(Modal, {
+      title: 'Game Won!',
+      body: body,
+      buttons: buttons
+    })
+  });
 };
 
 module.exports = { initGameOverSystem: initGameOverSystem };
@@ -1429,9 +1511,19 @@ function Main(props) {
 function Lobby(props) {
   return React.createElement(
     'div',
-    null,
+    {
+      style: {
+        width: 300,
+        margin: 'auto',
+        marginTop: 150
+      }
+    },
     React.createElement(Button, {
       label: 'Play',
+      style: {
+        width: 300,
+        height: 30
+      },
       onClick: function onClick() {
         props.dispatch({
           type: 'SET_MODAL',

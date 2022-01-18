@@ -85,6 +85,25 @@ const initEventsSystem = (store) => {
       dispatch({type: 'STOP_TICK'});
     }
 
+    if (time == 850) {
+      dispatch({type: 'APPEND_TICKER', message:
+        'Post-scarcity society is in sight! If we can achieve:',
+      });
+      dispatch({type: 'APPEND_TICKER', message:
+        '- $250,000 of capital',
+      });
+      dispatch({type: 'APPEND_TICKER', message:
+        '- all labor required for commodities down to 0.1 (other than research)',
+      });
+      dispatch({type: 'APPEND_TICKER', message:
+        '- 0% unrest',
+      });
+      dispatch({type: 'APPEND_TICKER', message:
+        'Then this command economy will work and you will win!'
+      });
+      dispatch({type: 'STOP_TICK'});
+    }
+
   });
 };
 
