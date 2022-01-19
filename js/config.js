@@ -29,7 +29,10 @@ const config = {
       demand: 1,
       demandFn: (game, cost, population) => {
         let adjCost = cost > 0 ? cost : 0.01;
-        return Math.max(1, Math.floor(population / adjCost));
+        return Math.max(
+          Math.ceil(population * 0.1),
+          Math.floor(population / adjCost),
+        );
       },
       unlocked: false,
       numSold: 0,
@@ -43,7 +46,10 @@ const config = {
       demand: 1,
       demandFn: (game, cost, population) => {
         let adjCost = cost > 0 ? cost : 0.01;
-        return Math.max(1, Math.floor(population / adjCost));
+        return Math.max(
+          Math.ceil(population * 0.075),
+          Math.floor(population / adjCost),
+        );
       },
       unlocked: false,
       numSold: 0,
@@ -57,7 +63,10 @@ const config = {
       demand: 1,
       demandFn: (game, cost, population) => {
         let adjCost = cost > 0 ? cost : 0.01;
-        return Math.max(1, Math.floor(1.5 * population / adjCost));
+        return Math.max(
+          Math.ceil(population * 0.01),
+          Math.floor(1.5 * population / adjCost),
+        );
       },
       unlocked: false,
       numSold: 0,
@@ -128,7 +137,10 @@ const config = {
       demand: 0,
       demandFn: (game, cost, population) => {
         let adjCost = cost > 0 ? cost : 0.01;
-        return Math.max(1, Math.floor(5 * population / adjCost));
+        return Math.max(
+          Math.ceil(population * 0.01),
+          Math.floor(5 * population / adjCost),
+        );
       },
       unlocked: false,
       numSold: 0,
@@ -151,7 +163,7 @@ const config = {
 
   maxTickerLength: 7,
   popToAssignFn: (population) => {
-    if (population <= 40) {
+    if (population < 40) {
       return 1;
     }
     if (population < 100) {
