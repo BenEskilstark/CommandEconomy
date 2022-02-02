@@ -1,8 +1,7 @@
 // @flow
 
 const React = require('react');
-const Button = require('./Components/Button.react');
-const Modal = require('./Components/Modal.react');
+const {Button, Modal} = require('bens_ui_components');
 const Game = require('./Game.react');
 // const Lobby = require('./Lobby.react');
 

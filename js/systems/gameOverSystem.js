@@ -1,9 +1,7 @@
 // @flow
 
 const React = require('react');
-const Divider = require('../ui/components/Divider.react');
-const Modal = require('../ui/components/Modal.react');
-const Button = require('../ui/components/Button.react');
+const {Button, Divider, Modal} = require('bens_ui_components');
 const {useState} = React;
 
 /**

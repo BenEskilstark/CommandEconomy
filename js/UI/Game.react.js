@@ -1,8 +1,8 @@
 // @flow
 
 const React = require('react');
-const Button = require('./Components/Button.react');
-const InfoCard = require('./Components/InfoCard.react');
+const {Button, InfoCard} = require('bens_ui_components');
+// const InfoCard = require('bens_ui_components/InfoCard.react');
 const {config} = require('../config');
 const {displayMoney} = require('../utils/display');
 const {totalPopulation} = require('../selectors/selectors');

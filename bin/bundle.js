@@ -226,7 +226,7 @@ function renderUI(store) {
     modal: state.modal
   }), document.getElementById('container'));
 }
-},{"./reducers/rootReducer":5,"./ui/Main.react":13,"react":27,"react-dom":24,"redux":28}],3:[function(require,module,exports){
+},{"./reducers/rootReducer":5,"./ui/Main.react":10,"react":34,"react-dom":31,"redux":35}],3:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -657,7 +657,7 @@ var initGameState = function initGameState() {
 };
 
 module.exports = { rootReducer: rootReducer };
-},{"../config":1,"../selectors/selectors":6,"../utils/helpers":18,"./gameReducer":3,"./modalReducer":4}],6:[function(require,module,exports){
+},{"../config":1,"../selectors/selectors":6,"../utils/helpers":12,"./gameReducer":3,"./modalReducer":4}],6:[function(require,module,exports){
 "use strict";
 
 var getCommodity = function getCommodity(game, name) {
@@ -854,13 +854,16 @@ var initEventsSystem = function initEventsSystem(store) {
 };
 
 module.exports = { initEventsSystem: initEventsSystem };
-},{"react":27}],8:[function(require,module,exports){
+},{"react":34}],8:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
-var Divider = require('../ui/components/Divider.react');
-var Modal = require('../ui/components/Modal.react');
-var Button = require('../ui/components/Button.react');
+
+var _require = require('bens_ui_components'),
+    Button = _require.Button,
+    Divider = _require.Divider,
+    Modal = _require.Modal;
+
 var useState = React.useState;
 
 /**
@@ -1011,215 +1014,31 @@ var handleGameWon = function handleGameWon(store, dispatch, state, reason) {
 };
 
 module.exports = { initGameOverSystem: initGameOverSystem };
-},{"../ui/components/Button.react":14,"../ui/components/Divider.react":15,"../ui/components/Modal.react":16,"react":27}],9:[function(require,module,exports){
-'use strict';
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var React = require('react');
-var useState = React.useState,
-    useEffect = React.useEffect;
-
-// props:
-// id: ?string
-// label: string
-// onClick: () => void
-// onMouseDown: optional () => void
-// onMouseUp: optional () => void
-// disabled: optional boolean
-// style: optional Object
-
-function Button(props) {
-  var id = props.id || props.label;
-
-  var touchFn = function touchFn() {
-    if (props.onMouseDown != null) {
-      props.onMouseDown();
-    } else {
-      props.onClick();
-    }
-  };
-
-  var _useState = useState(null),
-      _useState2 = _slicedToArray(_useState, 2),
-      intervalID = _useState2[0],
-      setIntervalID = _useState2[1];
-
-  return React.createElement(
-    'button',
-    { type: 'button',
-      style: _extends({
-        touchAction: 'initial',
-        fontSize: '18px'
-      }, props.style),
-      key: id || label,
-      className: props.disabled ? 'buttonDisable' : '',
-      id: id.toUpperCase() + '_button',
-      onClick: props.disabled ? function () {} : props.onClick,
-      onTouchStart: function onTouchStart(ev) {
-        ev.preventDefault();
-        if (intervalID) {
-          console.log("already in interval, clearing");
-          clearInterval(intervalID);
-          setIntervalID(null);
-        }
-        touchFn();
-        // HACK: if it's any of these 4 buttons, then allow repeating
-        if (props.label == 'Bite (E)' || props.label == 'Follow (F)' || props.label == 'Dig (R)' || props.label == 'Alert (F)') {
-          var interval = setInterval(touchFn, 120);
-          setIntervalID(interval);
-        }
-      },
-      onTouchEnd: function onTouchEnd(ev) {
-        ev.preventDefault();
-        clearInterval(intervalID);
-        setIntervalID(null);
-        props.onMouseUp;
-      },
-      onTouchCancel: function onTouchCancel(ev) {
-        clearInterval(intervalID);
-        setIntervalID(null);
-        props.onMouseUp;
-      },
-      onTouchMove: function onTouchMove(ev) {
-        ev.preventDefault();
-      },
-      onMouseDown: props.onMouseDown,
-      onMouseUp: props.onMouseUp,
-      disabled: props.disabled
-    },
-    props.label
-  );
-}
-
-module.exports = Button;
-},{"react":27}],10:[function(require,module,exports){
-'use strict';
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var React = require('react');
-
-var InfoCard = function InfoCard(props) {
-  var overrideStyle = props.style || {};
-  var underrideStyle = props.underrideStyle || {};
-  return React.createElement(
-    'div',
-    {
-      style: _extends({}, underrideStyle, {
-        border: props.border != null ? props.border : '1px solid black',
-        backgroundColor: 'white',
-        opacity: props.opacity != null ? props.opacity : 1,
-        // width: 200,
-        // height: 148,
-        verticalAlign: 'top',
-        marginBottom: 4,
-        marginLeft: 4,
-        display: 'inline-block',
-        padding: 4
-      }, overrideStyle)
-    },
-    props.children
-  );
-};
-
-module.exports = InfoCard;
-},{"react":27}],11:[function(require,module,exports){
+},{"bens_ui_components":27,"react":34}],9:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
-var Button = require('./Button.react');
 
-var _require = require('../../utils/helpers'),
-    isMobile = _require.isMobile;
+var _require = require('bens_ui_components'),
+    Button = _require.Button,
+    InfoCard = _require.InfoCard;
+// const InfoCard = require('bens_ui_components/InfoCard.react');
 
-function Modal(props) {
-  var title = props.title,
-      body = props.body,
-      buttons = props.buttons;
 
-  var height = props.height ? props.height : 450;
+var _require2 = require('../config'),
+    config = _require2.config;
 
-  // using 2 rects to properly position width and height
-  var rect = document.getElementById('container').getBoundingClientRect();
-  var canvasRect = null;
-  var canvas = document.getElementById('canvas');
-  if (canvas != null) {
-    canvasRect = canvas.getBoundingClientRect();
-  } else {
-    canvasRect = rect;
-  }
+var _require3 = require('../utils/display'),
+    displayMoney = _require3.displayMoney;
 
-  var buttonHTML = buttons.map(function (b) {
-    return React.createElement(Button, {
-      key: "b_" + b.label,
-      disabled: !!b.disabled,
-      label: b.label, onClick: b.onClick
-    });
-  });
+var _require4 = require('../selectors/selectors'),
+    totalPopulation = _require4.totalPopulation;
 
-  var width = props.width ? props.width : Math.min(rect.width * 0.8, 350);
-  return React.createElement(
-    'div',
-    {
-      style: {
-        position: 'absolute',
-        backgroundColor: 'whitesmoke',
-        border: '1px solid black',
-        padding: 4,
-        boxShadow: '2px 2px #666666',
-        borderRadius: 3,
-        color: '#46403a',
-        textAlign: 'center',
-        width: width,
-        top: isMobile() ? 0 : (canvasRect.height - height) / 2,
-        left: (rect.width - width) / 2
-      }
-    },
-    React.createElement(
-      'h3',
-      null,
-      React.createElement(
-        'b',
-        null,
-        title
-      )
-    ),
-    body,
-    React.createElement(
-      'div',
-      {
-        style: {}
-      },
-      buttonHTML
-    )
-  );
-}
+var _require5 = require('../systems/gameOverSystem'),
+    initGameOverSystem = _require5.initGameOverSystem;
 
-module.exports = Modal;
-},{"../../utils/helpers":18,"./Button.react":9,"react":27}],12:[function(require,module,exports){
-'use strict';
-
-var React = require('react');
-var Button = require('./Components/Button.react');
-var InfoCard = require('./Components/InfoCard.react');
-
-var _require = require('../config'),
-    config = _require.config;
-
-var _require2 = require('../utils/display'),
-    displayMoney = _require2.displayMoney;
-
-var _require3 = require('../selectors/selectors'),
-    totalPopulation = _require3.totalPopulation;
-
-var _require4 = require('../systems/gameOverSystem'),
-    initGameOverSystem = _require4.initGameOverSystem;
-
-var _require5 = require('../systems/eventsSystem'),
-    initEventsSystem = _require5.initEventsSystem;
+var _require6 = require('../systems/eventsSystem'),
+    initEventsSystem = _require6.initEventsSystem;
 
 var useState = React.useState,
     useMemo = React.useMemo,
@@ -1475,12 +1294,15 @@ function Commodity(props) {
 }
 
 module.exports = Game;
-},{"../config":1,"../selectors/selectors":6,"../systems/eventsSystem":7,"../systems/gameOverSystem":8,"../utils/display":17,"./Components/Button.react":9,"./Components/InfoCard.react":10,"react":27}],13:[function(require,module,exports){
+},{"../config":1,"../selectors/selectors":6,"../systems/eventsSystem":7,"../systems/gameOverSystem":8,"../utils/display":11,"bens_ui_components":27,"react":34}],10:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
-var Button = require('./Components/Button.react');
-var Modal = require('./Components/Modal.react');
+
+var _require = require('bens_ui_components'),
+    Button = _require.Button,
+    Modal = _require.Modal;
+
 var Game = require('./Game.react');
 // const Lobby = require('./Lobby.react');
 
@@ -1547,31 +1369,7 @@ function PlayModal(props) {
 }
 
 module.exports = Main;
-},{"./Components/Button.react":9,"./Components/Modal.react":11,"./Game.react":12,"react":27}],14:[function(require,module,exports){
-arguments[4][9][0].apply(exports,arguments)
-},{"dup":9,"react":27}],15:[function(require,module,exports){
-'use strict';
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var React = require('react');
-
-function Divider(props) {
-  var style = props.style;
-
-  return React.createElement('div', {
-    style: _extends({
-      width: '100%',
-      height: '0px',
-      border: '1px solid black'
-    }, style)
-  });
-}
-
-module.exports = Divider;
-},{"react":27}],16:[function(require,module,exports){
-arguments[4][11][0].apply(exports,arguments)
-},{"../../utils/helpers":18,"./Button.react":14,"dup":11,"react":27}],17:[function(require,module,exports){
+},{"./Game.react":9,"bens_ui_components":27,"react":34}],11:[function(require,module,exports){
 'use strict';
 
 var displayMoney = function displayMoney(money) {
@@ -1585,7 +1383,7 @@ var displayMoney = function displayMoney(money) {
 module.exports = {
   displayMoney: displayMoney
 };
-},{}],18:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -1749,7 +1547,7 @@ module.exports = {
   throttle: throttle,
   isElectron: isElectron
 };
-},{}],19:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 function _defineProperty(obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
@@ -1766,7 +1564,7 @@ function _defineProperty(obj, key, value) {
 }
 
 module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
-},{}],20:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var defineProperty = require("./defineProperty.js");
 
 function ownKeys(object, enumerableOnly) {
@@ -1796,7 +1594,893 @@ function _objectSpread2(target) {
 }
 
 module.exports = _objectSpread2, module.exports.__esModule = true, module.exports["default"] = module.exports;
-},{"./defineProperty.js":19}],21:[function(require,module,exports){
+},{"./defineProperty.js":13}],15:[function(require,module,exports){
+'use strict';
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var React = require('react');
+var Button = require('./Button.react');
+var useState = React.useState,
+    useEffect = React.useEffect,
+    useMemo = React.useMemo;
+
+/**
+ * Props:
+ *
+ * audioFiles, // array of {path, type} pairs
+ * isMuted, // optional boolean for outside control of this widget
+ * setIsMuted, // optional function called when this is toggled
+ * isShuffled, // optional boolean for whether audio should play in random order
+ * style, // optional object of css styles
+ *
+ */
+
+var AudioWidget = function AudioWidget(props) {
+  var _useState = useState(!!props.isMuted),
+      _useState2 = _slicedToArray(_useState, 2),
+      isMuted = _useState2[0],
+      setIsMuted = _useState2[1];
+
+  var _useState3 = useState(0),
+      _useState4 = _slicedToArray(_useState3, 2),
+      playIndex = _useState4[0],
+      setPlayIndex = _useState4[1];
+
+  var playOrder = useMemo(function () {
+    var array = props.audioFiles.map(function (a, i) {
+      return i;
+    });
+    if (props.isShuffled) {
+      for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+      }
+      // initialOrder.sort(() => (Math.random() > 0.5) ? 1 : -1)
+    }
+    return array;
+  }, [props.audioFiles]);
+
+  var widgetStyle = {
+    margin: 5,
+    borderRadius: 8,
+    left: 5
+  };
+
+  // player
+  var audioPlayer = useMemo(function () {
+    var a = new Audio(props.audioFiles[playIndex].path);
+    return a;
+  }, [playIndex, isMuted, props.audioFiles]);
+
+  useEffect(function () {
+    if (!isMuted) {
+      audioPlayer.addEventListener('loadeddata', function () {
+        audioPlayer.play();
+        setTimeout(function () {
+          return setPlayIndex((playIndex + 1) % props.audioFiles.length);
+        }, audioPlayer.duration * 1000);
+      });
+    }
+    return function () {
+      audioPlayer.pause();
+    };
+  }, [playIndex, isMuted, props.audioFiles, audioPlayer]);
+
+  return React.createElement(
+    'div',
+    {
+      style: props.style ? props.style : widgetStyle
+    },
+    React.createElement(Button, {
+      label: isMuted ? 'Turn Music ON' : 'Turn Music OFF',
+      onClick: function onClick() {
+        audioPlayer.pause();
+        setIsMuted(!isMuted);
+        if (props.setIsMuted) {
+          props.setIsMuted(!isMuted);
+        }
+      }
+    })
+  );
+};
+
+module.exports = AudioWidget;
+},{"./Button.react":16,"react":34}],16:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var React = require('react');
+var useState = React.useState,
+    useEffect = React.useEffect;
+
+// props:
+// id: ?string
+// label: string
+// onClick: () => void
+// onMouseDown: optional () => void
+// onMouseUp: optional () => void
+// disabled: optional boolean
+// style: optional Object
+
+function Button(props) {
+  var id = props.id || props.label;
+
+  var touchFn = function touchFn() {
+    if (props.onMouseDown != null) {
+      props.onMouseDown();
+    } else {
+      props.onClick();
+    }
+  };
+
+  var _useState = useState(null),
+      _useState2 = _slicedToArray(_useState, 2),
+      intervalID = _useState2[0],
+      setIntervalID = _useState2[1];
+
+  return React.createElement(
+    'button',
+    { type: 'button',
+      style: _extends({
+        touchAction: 'initial',
+        fontSize: '18px'
+      }, props.style),
+      key: id || label,
+      className: props.disabled ? 'buttonDisable' : '',
+      id: id.toUpperCase() + '_button',
+      onClick: props.disabled ? function () {} : props.onClick,
+      onTouchStart: function onTouchStart(ev) {
+        ev.preventDefault();
+        if (props.disabled) {
+          return;
+        }
+        if (intervalID) {
+          console.log("already in interval, clearing");
+          clearInterval(intervalID);
+          setIntervalID(null);
+        }
+        touchFn();
+        // HACK: if you set the right condition, allow repetive presses
+        if (false) {
+          var interval = setInterval(touchFn, 120);
+          setIntervalID(interval);
+        }
+      },
+      onTouchEnd: function onTouchEnd(ev) {
+        ev.preventDefault();
+        clearInterval(intervalID);
+        setIntervalID(null);
+        props.onMouseUp;
+      },
+      onTouchCancel: function onTouchCancel(ev) {
+        clearInterval(intervalID);
+        setIntervalID(null);
+        props.onMouseUp;
+      },
+      onTouchMove: function onTouchMove(ev) {
+        ev.preventDefault();
+      },
+      onMouseDown: props.onMouseDown,
+      onMouseUp: props.onMouseUp,
+      disabled: props.disabled
+    },
+    props.label
+  );
+}
+
+module.exports = Button;
+},{"react":34}],17:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+/**
+ * Props:
+ *  label: ?string
+ *  checked: boolean
+ *  onChange: (value: boolean) => void
+ */
+function Checkbox(props) {
+  var checked = props.checked,
+      label = props.label,
+      _onChange = props.onChange;
+
+  var checkbox = React.createElement('input', {
+    type: 'checkbox',
+    checked: checked,
+    onChange: function onChange() {
+      _onChange(!checked);
+    }
+  });
+  if (label == null) {
+    return checkbox;
+  } else {
+    return React.createElement(
+      'div',
+      {
+        style: {
+          display: 'inline-block'
+        }
+      },
+      label,
+      checkbox
+    );
+  }
+}
+
+module.exports = Checkbox;
+},{"react":34}],18:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var React = require('react');
+
+function Divider(props) {
+  var style = props.style;
+
+  return React.createElement('div', {
+    style: _extends({
+      width: '100%',
+      height: '0px',
+      border: '1px solid black'
+    }, style)
+  });
+}
+
+module.exports = Divider;
+},{"react":34}],19:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+/**
+ * Props:
+ * options: Array<string>
+ * displayOptions: ?Array<string>
+ * selected: string // which option is selected
+ * onChange: (string) => void
+ */
+var Dropdown = function Dropdown(props) {
+  var options = props.options,
+      selected = props.selected,
+      _onChange = props.onChange,
+      displayOptions = props.displayOptions;
+
+  var optionTags = options.map(function (option, i) {
+    var label = displayOptions != null && displayOptions[i] != null ? displayOptions[i] : option;
+    return React.createElement(
+      'option',
+      { key: 'option_' + option, value: option },
+      label
+    );
+  });
+
+  return React.createElement(
+    'select',
+    {
+      onChange: function onChange(ev) {
+        var val = ev.target.value;
+        _onChange(val);
+      },
+      value: selected
+    },
+    optionTags
+  );
+};
+
+module.exports = Dropdown;
+},{"react":34}],20:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var React = require('react');
+
+var InfoCard = function InfoCard(props) {
+  var overrideStyle = props.style || {};
+  var underrideStyle = props.underrideStyle || {};
+  return React.createElement(
+    'div',
+    {
+      style: _extends({}, underrideStyle, {
+        border: props.border != null ? props.border : '1px solid black',
+        backgroundColor: 'white',
+        opacity: props.opacity != null ? props.opacity : 1,
+        // width: 200,
+        // height: 148,
+        verticalAlign: 'top',
+        marginBottom: 4,
+        marginLeft: 4,
+        display: 'inline-block',
+        padding: 4
+      }, overrideStyle)
+    },
+    props.children
+  );
+};
+
+module.exports = InfoCard;
+},{"react":34}],21:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+var Button = require('./Button.react');
+
+var isMobile = function isMobile() {
+  var toMatch = [/Android/i, /webOS/i, /iPhone/i, /iPad/i, /iPod/i, /BlackBerry/i, /Windows Phone/i];
+
+  return toMatch.some(function (toMatchItem) {
+    return navigator.userAgent.match(toMatchItem);
+  });
+};
+
+/*
+type Props = {
+  title: ?string,
+  body: ?string,
+  buttons: Array<{
+    label: string,
+    onClick: () => void,
+  }>,
+  height: ?number,
+};
+*/
+
+function Modal(props) {
+  var title = props.title,
+      body = props.body,
+      buttons = props.buttons;
+
+  var height = props.height ? props.height : 450;
+
+  // using 2 rects to properly position width and height
+  var rect = document.getElementById('container').getBoundingClientRect();
+  var canvasRect = null;
+  var canvas = document.getElementById('canvas');
+  if (canvas != null) {
+    canvasRect = canvas.getBoundingClientRect();
+  } else {
+    canvasRect = rect;
+  }
+
+  var buttonHTML = buttons.map(function (b) {
+    return React.createElement(Button, {
+      key: "b_" + b.label,
+      disabled: !!b.disabled,
+      label: b.label, onClick: b.onClick
+    });
+  });
+
+  var width = props.width ? props.width : Math.min(rect.width * 0.8, 350);
+  return React.createElement(
+    'div',
+    {
+      style: {
+        position: 'absolute',
+        backgroundColor: 'whitesmoke',
+        border: '1px solid black',
+        padding: 4,
+        boxShadow: '2px 2px #666666',
+        borderRadius: 3,
+        color: '#46403a',
+        textAlign: 'center',
+        width: width,
+        top: isMobile() ? 0 : (canvasRect.height - height) / 2,
+        left: (rect.width - width) / 2
+      }
+    },
+    React.createElement(
+      'h3',
+      null,
+      React.createElement(
+        'b',
+        null,
+        title
+      )
+    ),
+    body,
+    React.createElement(
+      'div',
+      {
+        style: {}
+      },
+      buttonHTML
+    )
+  );
+}
+
+module.exports = Modal;
+},{"./Button.react":16,"react":34}],22:[function(require,module,exports){
+'use strict';
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var React = require('react');
+var useState = React.useState,
+    useMemo = React.useMemo,
+    useEffect = React.useEffect;
+
+/**
+ * props:
+ * value: number
+ * onChange: (number) => void,
+ * onlyInt: boolean, // only allow ints instead of floats
+ * width: number,
+ * submitOnEnter: boolean, // not implemented -- hard to play nice w/other keys
+ * submitOnBlur: boolean,
+ */
+
+var NumberField = function NumberField(props) {
+  var value = props.value,
+      _onChange = props.onChange,
+      onlyInt = props.onlyInt,
+      submitOnEnter = props.submitOnEnter,
+      submitOnBlur = props.submitOnBlur;
+
+  var _useState = useState(value),
+      _useState2 = _slicedToArray(_useState, 2),
+      stateValue = _useState2[0],
+      setValue = _useState2[1];
+
+  useEffect(function () {
+    setValue(value);
+  }, [value]);
+
+  var _useState3 = useState(false),
+      _useState4 = _slicedToArray(_useState3, 2),
+      isFocused = _useState4[0],
+      setFocus = _useState4[1];
+
+  useEffect(function () {
+    // document.onkeydown = (ev) => {
+    //   if (ev.keyCode == 13)  { // Enter
+    //     if (isFocused) {
+    //       submitValue(onChange, stateValue, onlyInt);
+    //     }
+    //   }
+    // };
+  }, [isFocused, stateValue]);
+
+  return React.createElement('input', { type: 'text',
+    style: {
+      width: props.width != null ? props.width : 40
+    },
+    value: stateValue,
+    onFocus: function onFocus() {
+      setFocus(true);
+    },
+    onBlur: function onBlur() {
+      setFocus(false);
+      if (submitOnBlur) {
+        submitValue(_onChange, stateValue, onlyInt);
+      }
+    },
+    onChange: function onChange(ev) {
+      var nextVal = ev.target.value;
+      if (isNaN(Number(nextVal))) return; // don't allow non-numerical input
+      setValue(nextVal);
+      if (!submitOnEnter && !submitOnBlur) {
+        submitValue(_onChange, nextVal, onlyInt);
+      }
+    }
+  });
+};
+
+var submitValue = function submitValue(onChange, nextVal, onlyInt) {
+  if (nextVal === '') {
+    onChange(0);
+  } else if (!onlyInt && nextVal[nextVal.length - 1] === '.') {
+    onChange(parseFloat(nextVal + '0'));
+  } else if (isNaN(Number(nextVal))) {
+    return; // ignore NaNs
+  } else {
+    var num = onlyInt ? parseInt(nextVal) : parseFloat(nextVal);
+    onChange(num);
+  }
+};
+
+module.exports = NumberField;
+},{"react":34}],23:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+var Button = require('./Button.react');
+var Modal = require('./Modal.react');
+var useState = React.useState,
+    useEffect = React.useEffect,
+    useMemo = React.useMemo;
+
+
+var isElectron = function isElectron() {
+  // return true;
+  return window.require != null;
+};
+var remote = null;
+if (isElectron()) {
+  remote = window.require('electron');
+}
+
+var QuitButton = function QuitButton(props) {
+  var isInGame = props.isInGame,
+      dispatch = props.dispatch;
+
+
+  if (!isInGame && !isElectron()) return null;
+
+  var buttonStyle = isInGame ? {} : {
+    margin: 5,
+    borderRadius: 8,
+    left: 5
+  };
+  return React.createElement(
+    'div',
+    {
+      style: buttonStyle
+    },
+    React.createElement(Button, {
+      label: 'Quit',
+      onClick: function onClick() {
+        if (!isInGame) {
+          remote.webFrame.context.close();
+        } else {
+          quitGameModal(dispatch);
+        }
+      }
+    })
+  );
+};
+
+var quitGameModal = function quitGameModal(dispatch) {
+  dispatch({ type: 'STOP_TICK' });
+
+  var returnToMainMenuButton = {
+    label: 'Main Menu',
+    onClick: function onClick() {
+      dispatch({ type: 'DISMISS_MODAL' });
+      dispatch({ type: 'RETURN_TO_LOBBY' });
+    }
+  };
+  var returnToGameButton = {
+    label: 'Return to Game',
+    onClick: function onClick() {
+      dispatch({ type: 'DISMISS_MODAL' });
+      dispatch({ type: 'START_TICK' });
+    }
+  };
+  var quitAppButton = {
+    label: 'Quit Application',
+    onClick: function onClick() {
+      remote.webFrame.context.close();
+    }
+  };
+  var buttons = [returnToGameButton, returnToMainMenuButton];
+  if (isElectron()) {
+    buttons.push(quitAppButton);
+  }
+
+  var body = React.createElement('div', null);
+
+  dispatch({ type: 'SET_MODAL',
+    modal: React.createElement(Modal, {
+      title: 'Quit Game?',
+      body: body,
+      buttons: buttons
+    })
+  });
+};
+
+module.exports = QuitButton;
+},{"./Button.react":16,"./Modal.react":21,"react":34}],24:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var React = require('react');
+
+// props:
+// options: Array<string>
+// selected: string
+// onChange: (option) => void
+
+var RadioPicker = function (_React$Component) {
+  _inherits(RadioPicker, _React$Component);
+
+  function RadioPicker() {
+    _classCallCheck(this, RadioPicker);
+
+    return _possibleConstructorReturn(this, (RadioPicker.__proto__ || Object.getPrototypeOf(RadioPicker)).apply(this, arguments));
+  }
+
+  _createClass(RadioPicker, [{
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
+
+      var optionToggles = [];
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        var _loop = function _loop() {
+          var option = _step.value;
+
+          optionToggles.push(React.createElement(
+            'div',
+            {
+              key: 'radioOption_' + option,
+              className: 'radioOption'
+            },
+            option,
+            React.createElement('input', { type: 'radio',
+              className: 'radioCheckbox',
+              value: option,
+              checked: option === _this2.props.selected,
+              onChange: function onChange() {
+                return _this2.props.onChange(option);
+              }
+            })
+          ));
+        };
+
+        for (var _iterator = this.props.options[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          _loop();
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return React.createElement(
+        'div',
+        null,
+        optionToggles
+      );
+    }
+  }]);
+
+  return RadioPicker;
+}(React.Component);
+
+module.exports = RadioPicker;
+},{"react":34}],25:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+var NumberField = require('./NumberField.react');
+var useState = React.useState,
+    useMemo = React.useMemo,
+    useEffect = React.useEffect;
+
+/**
+ *  props:
+ *  min, max: number,
+ *  value: ?number (min if null),
+ *  onChange: (number) => void,
+ *  step: ?number (1 if null),
+ *  label: ?string,
+ *  isFloat: ?boolean
+ */
+
+function Slider(props) {
+  var isFloat = props.isFloat;
+
+  var label = React.createElement(
+    'div',
+    { style: { display: 'inline-block' } },
+    props.label
+  );
+  var value = props.value != null ? props.value : props.min;
+  value = isFloat ? Math.floor(value * 10) : value;
+  var displayValue = isFloat ? value / 10 : value;
+
+  var min = isFloat ? props.min * 10 : props.min;
+  var max = isFloat ? props.max * 10 : props.max;
+
+  var originalValue = useMemo(function () {
+    return displayValue;
+  }, []);
+  return React.createElement(
+    'div',
+    null,
+    props.label != null ? label : null,
+    React.createElement('input', { type: 'range',
+      id: 'slider_' + label,
+      min: min, max: max,
+      value: value,
+      onChange: function onChange(ev) {
+        var val = ev.target.value;
+        props.onChange(parseFloat(isFloat ? val / 10 : val));
+      },
+      step: props.step != null ? props.step : 1
+    }),
+    React.createElement(
+      'div',
+      { style: { display: 'inline-block' } },
+      React.createElement(NumberField, {
+        value: displayValue,
+        onlyInt: !isFloat,
+        onChange: function onChange(val) {
+          props.onChange(val);
+        },
+        submitOnBlur: false
+      }),
+      '(',
+      originalValue,
+      ')'
+    )
+  );
+}
+
+module.exports = Slider;
+},{"./NumberField.react":22,"react":34}],26:[function(require,module,exports){
+'use strict';
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var React = require('react');
+var Button = require('./Button.react');
+var useEffect = React.useEffect,
+    useMemo = React.useMemo,
+    useState = React.useState;
+
+/**
+type ColumnName = string;
+type Props = {
+  columns: {[name: ColumnName]: {
+    displayName: string,
+    sortFn: ?() => number, // sorts alphanumerically if not provided
+    maxWidth: number, // maximum number of characters allowed
+  }},
+  rows: Array<{[name: ColumnName]: mixed}>,
+  hideColSorts: boolean,
+};
+*/
+
+var tableStyle = {
+  backgroundColor: '#faf8ef',
+  width: '100%',
+  borderRadius: 8
+};
+
+function Table(props) {
+  var columns = props.columns,
+      rows = props.rows,
+      hideColSorts = props.hideColSorts;
+
+  var colNames = Object.keys(columns);
+
+  var _useState = useState({ by: 'ASC', name: null }),
+      _useState2 = _slicedToArray(_useState, 2),
+      sortByColumn = _useState2[0],
+      setSortByColumn = _useState2[1];
+
+  var headers = colNames.map(function (col) {
+    return React.createElement(
+      'th',
+      { key: 'header_' + col },
+      columns[col].displayName,
+      hideColSorts ? null : React.createElement(
+        'div',
+        { style: { fontWeight: 'normal' } },
+        'Sort:',
+        React.createElement(Button, {
+          label: '/\\',
+          fontSize: 12,
+          onClick: function onClick() {
+            setSortByColumn({ by: 'ASC', name: col });
+          }
+        }),
+        React.createElement(Button, {
+          label: '\\/',
+          fontSize: 12,
+          onClick: function onClick() {
+            setSortByColumn({ by: 'DESC', name: col });
+          }
+        })
+      )
+    );
+  });
+
+  var sortedRows = useMemo(function () {
+    if (sortByColumn.name == null) return rows;
+    var sorted = [];
+    if (columns[sortByColumn.name].sortFn != null) {
+      sorted = [].concat(_toConsumableArray(rows)).sort(columns[sortByColumn.name].sortFn);
+    } else {
+      sorted = [].concat(_toConsumableArray(rows)).sort(function (rowA, rowB) {
+        if (rowA[sortByColumn.name] < rowB[sortByColumn.name]) {
+          return -1;
+        }
+        return 1;
+      });
+    }
+    if (sortByColumn.by != 'ASC') {
+      return sorted.reverse();
+    }
+    return sorted;
+  }, [sortByColumn, rows]);
+
+  var rowHTML = sortedRows.map(function (row, i) {
+    var rowData = colNames.map(function (col) {
+      var dataCell = columns[col].maxWidth ? ("" + row[col]).slice(0, columns[col].maxWidth) : row[col];
+      return React.createElement(
+        'td',
+        { key: 'cell_' + col + row[col] },
+        dataCell
+      );
+    });
+    return React.createElement(
+      'tr',
+      { key: 'row_' + i },
+      rowData
+    );
+  });
+
+  return React.createElement(
+    'table',
+    { style: tableStyle },
+    React.createElement(
+      'thead',
+      null,
+      React.createElement(
+        'tr',
+        null,
+        headers
+      )
+    ),
+    React.createElement(
+      'tbody',
+      null,
+      rowHTML
+    )
+  );
+}
+
+module.exports = Table;
+},{"./Button.react":16,"react":34}],27:[function(require,module,exports){
+
+module.exports = {
+  AudioWidget: require('./bin/AudioWidget.react.js'),
+  Button: require('./bin/Button.react.js'),
+  Checkbox: require('./bin/Checkbox.react.js'),
+  Divider: require('./bin/Divider.react.js'),
+  Dropdown: require('./bin/Dropdown.react.js'),
+  InfoCard: require('./bin/InfoCard.react.js'),
+  Modal: require('./bin/Modal.react.js'),
+  NumberField: require('./bin/NumberField.react.js'),
+  QuitButton: require('./bin/QuitButton.react.js'),
+  RadioPicker: require('./bin/RadioPicker.react.js'),
+  Slider: require('./bin/Slider.react.js'),
+  Table: require('./bin/Table.react.js'),
+};
+
+},{"./bin/AudioWidget.react.js":15,"./bin/Button.react.js":16,"./bin/Checkbox.react.js":17,"./bin/Divider.react.js":18,"./bin/Dropdown.react.js":19,"./bin/InfoCard.react.js":20,"./bin/Modal.react.js":21,"./bin/NumberField.react.js":22,"./bin/QuitButton.react.js":23,"./bin/RadioPicker.react.js":24,"./bin/Slider.react.js":25,"./bin/Table.react.js":26}],28:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -1888,7 +2572,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],22:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v17.0.2
  * react-dom.development.js
@@ -28154,7 +28838,7 @@ exports.version = ReactVersion;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":35,"object-assign":21,"react":27,"scheduler":33,"scheduler/tracing":34}],23:[function(require,module,exports){
+},{"_process":42,"object-assign":28,"react":34,"scheduler":40,"scheduler/tracing":41}],30:[function(require,module,exports){
 /** @license React v17.0.2
  * react-dom.production.min.js
  *
@@ -28453,7 +29137,7 @@ exports.findDOMNode=function(a){if(null==a)return null;if(1===a.nodeType)return 
 exports.render=function(a,b,c){if(!rk(b))throw Error(y(200));return tk(null,a,b,!1,c)};exports.unmountComponentAtNode=function(a){if(!rk(a))throw Error(y(40));return a._reactRootContainer?(Xj(function(){tk(null,null,a,!1,function(){a._reactRootContainer=null;a[ff]=null})}),!0):!1};exports.unstable_batchedUpdates=Wj;exports.unstable_createPortal=function(a,b){return uk(a,b,2<arguments.length&&void 0!==arguments[2]?arguments[2]:null)};
 exports.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!rk(c))throw Error(y(200));if(null==a||void 0===a._reactInternals)throw Error(y(38));return tk(a,b,c,!1,d)};exports.version="17.0.2";
 
-},{"object-assign":21,"react":27,"scheduler":33}],24:[function(require,module,exports){
+},{"object-assign":28,"react":34,"scheduler":40}],31:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -28495,7 +29179,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react-dom.development.js":22,"./cjs/react-dom.production.min.js":23,"_process":35}],25:[function(require,module,exports){
+},{"./cjs/react-dom.development.js":29,"./cjs/react-dom.production.min.js":30,"_process":42}],32:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v17.0.2
  * react.development.js
@@ -30832,7 +31516,7 @@ exports.version = ReactVersion;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":35,"object-assign":21}],26:[function(require,module,exports){
+},{"_process":42,"object-assign":28}],33:[function(require,module,exports){
 /** @license React v17.0.2
  * react.production.min.js
  *
@@ -30857,7 +31541,7 @@ key:d,ref:k,props:e,_owner:h}};exports.createContext=function(a,b){void 0===b&&(
 exports.lazy=function(a){return{$$typeof:v,_payload:{_status:-1,_result:a},_init:Q}};exports.memo=function(a,b){return{$$typeof:u,type:a,compare:void 0===b?null:b}};exports.useCallback=function(a,b){return S().useCallback(a,b)};exports.useContext=function(a,b){return S().useContext(a,b)};exports.useDebugValue=function(){};exports.useEffect=function(a,b){return S().useEffect(a,b)};exports.useImperativeHandle=function(a,b,c){return S().useImperativeHandle(a,b,c)};
 exports.useLayoutEffect=function(a,b){return S().useLayoutEffect(a,b)};exports.useMemo=function(a,b){return S().useMemo(a,b)};exports.useReducer=function(a,b,c){return S().useReducer(a,b,c)};exports.useRef=function(a){return S().useRef(a)};exports.useState=function(a){return S().useState(a)};exports.version="17.0.2";
 
-},{"object-assign":21}],27:[function(require,module,exports){
+},{"object-assign":28}],34:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -30868,7 +31552,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react.development.js":25,"./cjs/react.production.min.js":26,"_process":35}],28:[function(require,module,exports){
+},{"./cjs/react.development.js":32,"./cjs/react.production.min.js":33,"_process":42}],35:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -31569,7 +32253,7 @@ exports.compose = compose;
 exports.createStore = createStore;
 
 }).call(this)}).call(this,require('_process'))
-},{"@babel/runtime/helpers/objectSpread2":20,"_process":35}],29:[function(require,module,exports){
+},{"@babel/runtime/helpers/objectSpread2":14,"_process":42}],36:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v0.20.2
  * scheduler-tracing.development.js
@@ -31920,7 +32604,7 @@ exports.unstable_wrap = unstable_wrap;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":35}],30:[function(require,module,exports){
+},{"_process":42}],37:[function(require,module,exports){
 /** @license React v0.20.2
  * scheduler-tracing.production.min.js
  *
@@ -31931,7 +32615,7 @@ exports.unstable_wrap = unstable_wrap;
  */
 'use strict';var b=0;exports.__interactionsRef=null;exports.__subscriberRef=null;exports.unstable_clear=function(a){return a()};exports.unstable_getCurrent=function(){return null};exports.unstable_getThreadID=function(){return++b};exports.unstable_subscribe=function(){};exports.unstable_trace=function(a,d,c){return c()};exports.unstable_unsubscribe=function(){};exports.unstable_wrap=function(a){return a};
 
-},{}],31:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v0.20.2
  * scheduler.development.js
@@ -32581,7 +33265,7 @@ exports.unstable_wrapCallback = unstable_wrapCallback;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":35}],32:[function(require,module,exports){
+},{"_process":42}],39:[function(require,module,exports){
 /** @license React v0.20.2
  * scheduler.production.min.js
  *
@@ -32603,7 +33287,7 @@ exports.unstable_next=function(a){switch(P){case 1:case 2:case 3:var b=3;break;d
 exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3}e=c+e;a={id:N++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,H(M,a),null===J(L)&&a===J(M)&&(S?h():S=!0,g(U,c-d))):(a.sortIndex=e,H(L,a),R||Q||(R=!0,f(V)));return a};
 exports.unstable_wrapCallback=function(a){var b=P;return function(){var c=P;P=b;try{return a.apply(this,arguments)}finally{P=c}}};
 
-},{}],33:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -32614,7 +33298,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler.development.js":31,"./cjs/scheduler.production.min.js":32,"_process":35}],34:[function(require,module,exports){
+},{"./cjs/scheduler.development.js":38,"./cjs/scheduler.production.min.js":39,"_process":42}],41:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -32625,7 +33309,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler-tracing.development.js":29,"./cjs/scheduler-tracing.production.min.js":30,"_process":35}],35:[function(require,module,exports){
+},{"./cjs/scheduler-tracing.development.js":36,"./cjs/scheduler-tracing.production.min.js":37,"_process":42}],42:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
