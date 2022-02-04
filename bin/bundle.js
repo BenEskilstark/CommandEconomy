@@ -226,7 +226,7 @@ function renderUI(store) {
     modal: state.modal
   }), document.getElementById('container'));
 }
-},{"./reducers/rootReducer":5,"./ui/Main.react":10,"react":34,"react-dom":31,"redux":35}],3:[function(require,module,exports){
+},{"./reducers/rootReducer":5,"./ui/Main.react":10,"react":41,"react-dom":38,"redux":42}],3:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -854,7 +854,7 @@ var initEventsSystem = function initEventsSystem(store) {
 };
 
 module.exports = { initEventsSystem: initEventsSystem };
-},{"react":34}],8:[function(require,module,exports){
+},{"react":41}],8:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -1014,7 +1014,7 @@ var handleGameWon = function handleGameWon(store, dispatch, state, reason) {
 };
 
 module.exports = { initGameOverSystem: initGameOverSystem };
-},{"bens_ui_components":27,"react":34}],9:[function(require,module,exports){
+},{"bens_ui_components":27,"react":41}],9:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -1294,7 +1294,7 @@ function Commodity(props) {
 }
 
 module.exports = Game;
-},{"../config":1,"../selectors/selectors":6,"../systems/eventsSystem":7,"../systems/gameOverSystem":8,"../utils/display":11,"bens_ui_components":27,"react":34}],10:[function(require,module,exports){
+},{"../config":1,"../selectors/selectors":6,"../systems/eventsSystem":7,"../systems/gameOverSystem":8,"../utils/display":11,"bens_ui_components":27,"react":41}],10:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -1369,7 +1369,7 @@ function PlayModal(props) {
 }
 
 module.exports = Main;
-},{"./Game.react":9,"bens_ui_components":27,"react":34}],11:[function(require,module,exports){
+},{"./Game.react":9,"bens_ui_components":27,"react":41}],11:[function(require,module,exports){
 'use strict';
 
 var displayMoney = function displayMoney(money) {
@@ -1688,7 +1688,7 @@ var AudioWidget = function AudioWidget(props) {
 };
 
 module.exports = AudioWidget;
-},{"./Button.react":16,"react":34}],16:[function(require,module,exports){
+},{"./Button.react":16,"react":41}],16:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1775,7 +1775,7 @@ function Button(props) {
 }
 
 module.exports = Button;
-},{"react":34}],17:[function(require,module,exports){
+},{"react":41}],17:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -1815,7 +1815,7 @@ function Checkbox(props) {
 }
 
 module.exports = Checkbox;
-},{"react":34}],18:[function(require,module,exports){
+},{"react":41}],18:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1835,7 +1835,7 @@ function Divider(props) {
 }
 
 module.exports = Divider;
-},{"react":34}],19:[function(require,module,exports){
+},{"react":41}],19:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -1876,7 +1876,7 @@ var Dropdown = function Dropdown(props) {
 };
 
 module.exports = Dropdown;
-},{"react":34}],20:[function(require,module,exports){
+},{"react":41}],20:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1907,19 +1907,13 @@ var InfoCard = function InfoCard(props) {
 };
 
 module.exports = InfoCard;
-},{"react":34}],21:[function(require,module,exports){
+},{"react":41}],21:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
 var Button = require('./Button.react');
 
-var isMobile = function isMobile() {
-  var toMatch = [/Android/i, /webOS/i, /iPhone/i, /iPad/i, /iPod/i, /BlackBerry/i, /Windows Phone/i];
-
-  return toMatch.some(function (toMatchItem) {
-    return navigator.userAgent.match(toMatchItem);
-  });
-};
+var isMobile = require('bens_utils').platform.isMobile;
 
 /*
 type Props = {
@@ -1997,7 +1991,7 @@ function Modal(props) {
 }
 
 module.exports = Modal;
-},{"./Button.react":16,"react":34}],22:[function(require,module,exports){
+},{"./Button.react":16,"bens_utils":34,"react":41}],22:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -2087,25 +2081,19 @@ var submitValue = function submitValue(onChange, nextVal, onlyInt) {
 };
 
 module.exports = NumberField;
-},{"react":34}],23:[function(require,module,exports){
+},{"react":41}],23:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
 var Button = require('./Button.react');
 var Modal = require('./Modal.react');
+
+var isElectron = require('bens_utils').platform.isElectron;
+
 var useState = React.useState,
     useEffect = React.useEffect,
     useMemo = React.useMemo;
 
-
-var isElectron = function isElectron() {
-  // return true;
-  return window.require != null;
-};
-var remote = null;
-if (isElectron()) {
-  remote = window.require('electron');
-}
 
 var QuitButton = function QuitButton(props) {
   var isInGame = props.isInGame,
@@ -2177,7 +2165,7 @@ var quitGameModal = function quitGameModal(dispatch) {
 };
 
 module.exports = QuitButton;
-},{"./Button.react":16,"./Modal.react":21,"react":34}],24:[function(require,module,exports){
+},{"./Button.react":16,"./Modal.react":21,"bens_utils":34,"react":41}],24:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2266,7 +2254,7 @@ var RadioPicker = function (_React$Component) {
 }(React.Component);
 
 module.exports = RadioPicker;
-},{"react":34}],25:[function(require,module,exports){
+},{"react":41}],25:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -2336,7 +2324,7 @@ function Slider(props) {
 }
 
 module.exports = Slider;
-},{"./NumberField.react":22,"react":34}],26:[function(require,module,exports){
+},{"./NumberField.react":22,"react":41}],26:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -2463,7 +2451,7 @@ function Table(props) {
 }
 
 module.exports = Table;
-},{"./Button.react":16,"react":34}],27:[function(require,module,exports){
+},{"./Button.react":16,"react":41}],27:[function(require,module,exports){
 
 module.exports = {
   AudioWidget: require('./bin/AudioWidget.react.js'),
@@ -2481,6 +2469,653 @@ module.exports = {
 };
 
 },{"./bin/AudioWidget.react.js":15,"./bin/Button.react.js":16,"./bin/Checkbox.react.js":17,"./bin/Divider.react.js":18,"./bin/Dropdown.react.js":19,"./bin/InfoCard.react.js":20,"./bin/Modal.react.js":21,"./bin/NumberField.react.js":22,"./bin/QuitButton.react.js":23,"./bin/RadioPicker.react.js":24,"./bin/Slider.react.js":25,"./bin/Table.react.js":26}],28:[function(require,module,exports){
+'use strict';
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var _require = require('./helpers'),
+    thetaToDir = _require.thetaToDir;
+
+var _require2 = require('./math'),
+    clamp = _require2.clamp;
+
+var _require3 = require('./vectors'),
+    add = _require3.add,
+    multiply = _require3.multiply,
+    subtract = _require3.subtract,
+    equals = _require3.equals,
+    floor = _require3.floor,
+    containsVector = _require3.containsVector;
+
+var initGrid = function initGrid(gridWidth, gridHeight, numPlayers) {
+  var grid = [];
+  for (var x = 0; x < gridWidth; x++) {
+    var col = [];
+    for (var y = 0; y < gridHeight; y++) {
+      var cell = {
+        entities: []
+      };
+      for (var i = 0; i < numPlayers; i++) {
+        cell[i + 1] = {};
+        // pheromones:
+        // for (const pheromoneType of config.pheromoneTypes) {
+        //   cell[i+1][pheromoneType] = 0;
+        // }
+      }
+      col.push(cell);
+    }
+    grid.push(col);
+  }
+  return grid;
+};
+
+var insideGrid = function insideGrid(grid, position) {
+  if (position == null) return false;
+  var x = position.x,
+      y = position.y;
+
+  return grid[x] != null && x >= 0 && y >= 0 && x < grid.length && y < grid[x].length;
+};
+var entityInsideGrid = function entityInsideGrid(game, entity) {
+  var gridWidth = game.gridWidth,
+      gridHeight = game.gridHeight;
+  var position = entity.position,
+      width = entity.width,
+      height = entity.height;
+
+  if (position == null) return false;
+  var x = position.x,
+      y = position.y;
+
+
+  return x >= 0 && y >= 0 && x + width <= gridWidth && y + height <= gridHeight;
+};
+
+var lookupInGrid = function lookupInGrid(grid, position) {
+  if (!insideGrid(grid, position)) return [];
+  return grid[position.x][position.y].entities;
+};
+
+var getPheromonesInCell = function getPheromonesInCell(grid, position, playerID) {
+  if (!insideGrid(grid, position)) return [];
+  return grid[position.x][position.y][playerID];
+};
+
+var insertInCell = function insertInCell(grid, position, entityID) {
+  if (!insideGrid(grid, position)) return false;
+
+  grid[position.x][position.y].entities.push(entityID);
+  return true;
+};
+
+var deleteFromCell = function deleteFromCell(grid, position, entityID) {
+  if (!insideGrid(grid, position)) return true;
+
+  var x = position.x,
+      y = position.y;
+
+  var oldLength = grid[x][y].entities.length;
+  grid[x][y].entities = grid[x][y].entities.filter(function (id) {
+    return id != entityID;
+  });
+
+  return oldLength != grid[x][y].entities.length;
+};
+
+var canvasToGrid = function canvasToGrid(game, canvasPos, canvasSize) {
+  var canvasWidth = canvasSize.width,
+      canvasHeight = canvasSize.height;
+  var viewPos = game.viewPos,
+      viewWidth = game.viewWidth,
+      viewHeight = game.viewHeight;
+
+  // HACK: this is copypasta from the render/render.js function for maxMinimap
+
+  if (game.maxMinimap) {
+    var nextViewPos = {
+      x: game.viewPos.x - game.viewWidth * 3 / 2,
+      y: game.viewPos.y - game.viewHeight * 3 / 2
+    };
+    viewWidth *= 3;
+    viewHeight *= 3;
+    viewPos = {
+      x: clamp(nextViewPos.x, 0, game.gridWidth - game.viewWidth * 3),
+      y: clamp(nextViewPos.y, 0, game.gridHeight - game.viewHeight * 3)
+    };
+    if (viewWidth > game.gridWidth) {
+      viewPos.x = game.gridWidth / 2 - viewWidth / 2;
+    }
+    if (viewHeight > game.gridHeight) {
+      viewPos.y = game.gridHeight / 2 - viewHeight / 2;
+    }
+  }
+
+  var scaleVec = {
+    x: viewWidth / canvasWidth,
+    y: viewHeight / canvasHeight
+  };
+
+  var gridCoord = floor(add({ x: viewPos.x, y: viewPos.y }, multiply(canvasPos, scaleVec)));
+  return floor(gridCoord);
+};
+
+var getEntityPositions = function getEntityPositions(game, entity) {
+  if (entity.segmented) {
+    return [entity.position].concat(_toConsumableArray(entity.segments.map(function (s) {
+      return s.position;
+    })));
+  }
+  var width = entity.width != null ? entity.width : 1;
+  var height = entity.height != null ? entity.height : 1;
+  var dir = thetaToDir(entity.theta);
+  var positions = [];
+  for (var x = 0; x < entity.width; x++) {
+    for (var y = 0; y < entity.height; y++) {
+      var pos = { x: x, y: y };
+      if (dir == 'left' || dir == 'right') {
+        pos = { x: y, y: x };
+      }
+      positions.push(add(entity.position, pos));
+    }
+  }
+  return positions;
+};
+
+module.exports = {
+  initGrid: initGrid, // TODO: move gridHelpers out of utils/
+  insideGrid: insideGrid,
+  lookupInGrid: lookupInGrid,
+  insertInCell: insertInCell,
+  deleteFromCell: deleteFromCell,
+  getPheromonesInCell: getPheromonesInCell,
+  canvasToGrid: canvasToGrid,
+  getEntityPositions: getEntityPositions,
+  entityInsideGrid: entityInsideGrid
+};
+},{"./helpers":29,"./math":30,"./vectors":33}],29:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var _require = require('./vectors'),
+    subtract = _require.subtract,
+    vectorTheta = _require.vectorTheta;
+
+// NOTE: for angles in radians being close to each other!
+var closeTo = function closeTo(a, b) {
+  var normalizedA = a % (2 * Math.PI);
+  var epsilon = 0.00001;
+  return Math.abs(normalizedA - b) < epsilon;
+};
+
+var sameArray = function sameArray(arrayA, arrayB) {
+  if (arrayA.length != arrayB.length) return false;
+  for (var i = 0; i < arrayA.length; i++) {
+    if (arrayA[i] != arrayB[i]) {
+      return false;
+    }
+  }
+  return true;
+};
+
+var thetaToDir = function thetaToDir(theta, noDiagonal) {
+  // 90 degree only:
+  if (noDiagonal) {
+    var _directions = ['left', 'down', 'right', 'up'];
+    var _deg = Math.round(theta * 180 / Math.PI);
+    if (Math.round(_deg / 45) % 2 != 0) return null;
+    return _directions[Math.round(_deg / 90) % 4];
+  }
+
+  // including 45 degree:
+  var directions = ['left', 'leftup', 'up', 'rightup', 'right', 'rightdown', 'down', 'leftdown'];
+  var deg = Math.round(theta * 180 / Math.PI);
+  if (Math.round(deg / 45) != deg / 45) return null;
+  return directions[Math.round(deg / 45) % 8];
+};
+
+var isDiagonalTheta = function isDiagonalTheta(theta) {
+  var dir = thetaToDir(theta);
+  return dir == 'leftdown' || dir == 'rightdown' || dir == 'rightup' || dir == 'leftup';
+};
+
+var isDiagonalMove = function isDiagonalMove(vecA, vecB) {
+  if (vecA == null || vecB == null) return false;
+  return isDiagonalTheta(vectorTheta(subtract(vecA, vecB)));
+};
+
+var encodePosition = function encodePosition(pos) {
+  return "" + pos.x + "," + pos.y;
+};
+
+var decodePosition = function decodePosition(pos) {
+  var _pos$split = pos.split(','),
+      _pos$split2 = _slicedToArray(_pos$split, 2),
+      x = _pos$split2[0],
+      y = _pos$split2[1];
+
+  return { x: x, y: y };
+};
+
+var getDisplayTime = function getDisplayTime(millis) {
+  var seconds = Math.floor(millis / 1000);
+  var minutes = Math.floor(seconds / 60);
+  var leftOverSeconds = seconds - minutes * 60;
+  var leftOverSecondsStr = leftOverSeconds == 0 ? '00' : '' + leftOverSeconds;
+  if (leftOverSeconds < 10 && leftOverSeconds != 0) {
+    leftOverSecondsStr = '0' + leftOverSecondsStr;
+  }
+
+  return minutes + ':' + leftOverSecondsStr;
+};
+
+var throttle = function throttle(func, args, wait) {
+  var inThrottle = false;
+  return function (ev) {
+    if (inThrottle) {
+      return;
+    }
+    func.apply(undefined, _toConsumableArray(args).concat([ev]));
+    inThrottle = true;
+    setTimeout(function () {
+      inThrottle = false;
+    }, wait);
+  };
+};
+
+function deepCopy(obj) {
+  if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) !== 'object' || obj == null) {
+    return obj;
+  }
+
+  var copy = {};
+  for (var key in obj) {
+    if (_typeof(obj[key]) === 'object' && obj[key] != null) {
+      if (Array.isArray(obj[key])) {
+        copy[key] = [];
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = obj[key][Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var elem = _step.value;
+
+            copy[key].push(deepCopy(elem));
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+      } else {
+        copy[key] = deepCopy(obj[key]);
+      }
+    } else {
+      copy[key] = obj[key];
+    }
+  }
+  return copy;
+}
+
+module.exports = {
+  closeTo: closeTo, sameArray: sameArray, thetaToDir: thetaToDir,
+  isDiagonalTheta: isDiagonalTheta, isDiagonalMove: isDiagonalMove,
+  encodePosition: encodePosition, decodePosition: decodePosition,
+  getDisplayTime: getDisplayTime,
+  deepCopy: deepCopy,
+  throttle: throttle
+};
+},{"./vectors":33}],30:[function(require,module,exports){
+"use strict";
+
+var clamp = function clamp(val, min, max) {
+  return Math.min(Math.max(val, min), max);
+};
+
+/**
+ * when you want to do A - B, but A must always be >= 0, and you need
+ * to do something different if B > A, then use this function.
+ * Returns a {result, deficit, amount} tuple where
+ * - result is the new value of A after the subtraction, but always >= 0
+ * - deficit is the leftover value if B > A
+ * - amount is how much of operandB successfully subtracted
+ *    (will either equal operandB if deficit = 0 or operandA otherwise,
+ *    unless a step parameter is provided)
+ *
+ * Use the optional step parameter to ensure a minimum leftover
+ * amount that won't be subtracted if B > A. (ie if A is $27 and
+ * B is 3 * $10 of items, then step would be 10 and so
+ * {result: 7, deficit: 3, amount: 20} instead of
+ * {result: 0, deficit: 3, amount: 27})
+ **/
+var subtractWithDeficit = function subtractWithDeficit(operandA, operandB, step) {
+  step = step != null ? step : 1;
+  var result = operandA - operandB;
+  var amount = operandB;
+  var deficit = 0;
+  if (result < 0) {
+    // for reference, results without step:
+    // deficit = -1 * result;
+    // amount = operandA;
+    // result = 0;
+
+    deficit = -1 * result;
+    amount = Math.floor(operandA / step) * step;
+    result = operandA % step;
+  }
+  return { result: result, deficit: deficit, amount: amount };
+};
+
+module.exports = {
+  clamp: clamp,
+  subtractWithDeficit: subtractWithDeficit
+};
+},{}],31:[function(require,module,exports){
+'use strict';
+
+function isIpad() {
+  return navigator.platform == 'MacIntel' && navigator.maxTouchPoints > 0 && !navigator.userAgent.match(/iPhone/i);
+}
+
+function isMobile() {
+  var toMatch = [/Android/i, /webOS/i, /iPhone/i, /iPad/i, /iPod/i, /BlackBerry/i, /Windows Phone/i];
+
+  return toMatch.some(function (toMatchItem) {
+    return navigator.userAgent.match(toMatchItem);
+  }) || isIpad();
+}
+
+// HACK: when we're in electron window.require is a function
+function isElectron() {
+  // return true;
+  return window.require != null;
+}
+
+module.exports = {
+  isElectron: isElectron,
+  isIpad: isIpad,
+  isMobile: isMobile
+};
+},{}],32:[function(require,module,exports){
+"use strict";
+
+var floor = Math.floor,
+    sqrt = Math.sqrt,
+    random = Math.random,
+    round = Math.round;
+
+
+var rand = function rand() {
+  return random();
+};
+
+// return an integer between min and max, inclusive
+var randomIn = function randomIn(min, max) {
+  return floor(min + rand() * (max - min + 1));
+};
+
+var shamefulGaussian = function shamefulGaussian() {
+  return (rand() + rand() + rand() + rand() + rand() + rand() - 3) / 3;
+};
+var normalIn = function normalIn(min, max) {
+  var gaussian = (shamefulGaussian() + 1) / 2;
+  return floor(min + gaussian * (max - min + 1));
+};
+
+var oneOf = function oneOf(options) {
+  if (options.length === 0) return null;
+  return options[floor(rand() * options.length)];
+};
+
+// weights must be positive
+var weightedOneOf = function weightedOneOf(options, weights) {
+  var cumulativeWeights = [];
+  var sum = 0;
+
+  for (var i = 0; i < options.length; i++) {
+    sum += weights[i];
+    cumulativeWeights.push(sum);
+  }
+
+  var randomVal = randomIn(0, sum - 1) + 1;
+
+  var index = 0;
+  for (; randomVal > cumulativeWeights[index]; index++) {}
+
+  return options[index];
+};
+
+module.exports = {
+  randomIn: randomIn,
+  normalIn: normalIn,
+  oneOf: oneOf,
+  weightedOneOf: weightedOneOf
+};
+},{}],33:[function(require,module,exports){
+"use strict";
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var cos = Math.cos,
+    sin = Math.sin;
+
+
+var add = function add() {
+  for (var _len = arguments.length, vectors = Array(_len), _key = 0; _key < _len; _key++) {
+    vectors[_key] = arguments[_key];
+  }
+
+  var resultVec = { x: 0, y: 0 };
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = vectors[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var v = _step.value;
+
+      resultVec.x += v.x;
+      resultVec.y += v.y;
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return resultVec;
+};
+
+var equals = function equals(a, b) {
+  return a.x == b.x && a.y == b.y;
+};
+
+// NOTE: see vectorTheta note if subtracting vectors to find the angle between them
+var subtract = function subtract() {
+  for (var _len2 = arguments.length, vectors = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+    vectors[_key2] = arguments[_key2];
+  }
+
+  var resultVec = _extends({}, vectors[0]);
+  for (var i = 1; i < vectors.length; i++) {
+    resultVec.x -= vectors[i].x;
+    resultVec.y -= vectors[i].y;
+  }
+  return resultVec;
+};
+
+var makeVector = function makeVector(theta, magnitude) {
+  var x = magnitude * cos(theta);
+  var y = magnitude * sin(theta);
+  return { x: x, y: y };
+};
+
+var dist = function dist(vecA, vecB) {
+  return magnitude(subtract(vecA, vecB));
+};
+
+var scale = function scale(vec, scalar) {
+  return { x: vec.x * scalar, y: vec.y * scalar };
+};
+
+var magnitude = function magnitude(vector) {
+  var x = vector.x,
+      y = vector.y;
+
+  return Math.sqrt(x * x + y * y);
+};
+
+// what is the angle of this vector
+// NOTE: that when subtracting two vectors in order to compute the theta
+// between them, the target should be the first argument
+var vectorTheta = function vectorTheta(vector) {
+  // shift domain from [-Math.PI, Math.PI] to [0, 2 * Math.PI]
+  return (2 * Math.PI + Math.atan2(vector.y, vector.x)) % (2 * Math.PI);
+};
+
+var multiply = function multiply() {
+  for (var _len3 = arguments.length, vectors = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+    vectors[_key3] = arguments[_key3];
+  }
+
+  var resultVec = { x: 1, y: 1 };
+  for (var i = 0; i < vectors.length; i++) {
+    resultVec.x *= vectors[i].x;
+    resultVec.y *= vectors[i].y;
+  }
+  return resultVec;
+};
+
+var floor = function floor(vector) {
+  return {
+    x: Math.floor(vector.x),
+    y: Math.floor(vector.y)
+  };
+};
+
+var round = function round(vector) {
+  return {
+    x: Math.round(vector.x),
+    y: Math.round(vector.y)
+  };
+};
+
+var ceil = function ceil(vector) {
+  return {
+    x: Math.ceil(vector.x),
+    y: Math.ceil(vector.y)
+  };
+};
+
+var containsVector = function containsVector(array, vec) {
+  var _iteratorNormalCompletion2 = true;
+  var _didIteratorError2 = false;
+  var _iteratorError2 = undefined;
+
+  try {
+    for (var _iterator2 = array[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+      var vector = _step2.value;
+
+      if (equals(vector, vec)) return true;
+    }
+  } catch (err) {
+    _didIteratorError2 = true;
+    _iteratorError2 = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion2 && _iterator2.return) {
+        _iterator2.return();
+      }
+    } finally {
+      if (_didIteratorError2) {
+        throw _iteratorError2;
+      }
+    }
+  }
+
+  return false;
+};
+
+var abs = function abs(vector) {
+  return {
+    x: Math.abs(vector.x),
+    y: Math.abs(vector.y)
+  };
+};
+
+// given two positions, return a rectangle with the positions at opposite corners
+var toRect = function toRect(posA, posB) {
+  var rect = {
+    position: { x: Math.min(posA.x, posB.x), y: Math.min(posA.y, posB.y) },
+    width: Math.abs(posA.x - posB.x) + 1,
+    height: Math.abs(posA.y - posB.y) + 1
+  };
+  return rect;
+};
+
+var rotate = function rotate(vector, theta) {
+  var x = vector.x,
+      y = vector.y;
+
+  return {
+    x: cos(theta) * x - sin(theta) * y,
+    y: sin(theta) * x + cos(theta) * y
+  };
+};
+
+module.exports = {
+  add: add,
+  subtract: subtract,
+  equals: equals,
+  makeVector: makeVector,
+  scale: scale,
+  dist: dist,
+  magnitude: magnitude,
+  vectorTheta: vectorTheta,
+  multiply: multiply,
+  floor: floor,
+  round: round,
+  ceil: ceil,
+  containsVector: containsVector,
+  toRect: toRect,
+  rotate: rotate,
+  abs: abs
+};
+},{}],34:[function(require,module,exports){
+
+module.exports = {
+  vectors: require('./bin/vectors'),
+  helpers: require('./bin/helpers'),
+  stochastic: require('./bin/stochastic'),
+  grid: require('./bin/gridHelpers'),
+  platform: require('./bin/platform'),
+  math: require('./bin/math'),
+}
+
+},{"./bin/gridHelpers":28,"./bin/helpers":29,"./bin/math":30,"./bin/platform":31,"./bin/stochastic":32,"./bin/vectors":33}],35:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -2572,7 +3207,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],29:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v17.0.2
  * react-dom.development.js
@@ -28838,7 +29473,7 @@ exports.version = ReactVersion;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":42,"object-assign":28,"react":34,"scheduler":40,"scheduler/tracing":41}],30:[function(require,module,exports){
+},{"_process":49,"object-assign":35,"react":41,"scheduler":47,"scheduler/tracing":48}],37:[function(require,module,exports){
 /** @license React v17.0.2
  * react-dom.production.min.js
  *
@@ -29137,7 +29772,7 @@ exports.findDOMNode=function(a){if(null==a)return null;if(1===a.nodeType)return 
 exports.render=function(a,b,c){if(!rk(b))throw Error(y(200));return tk(null,a,b,!1,c)};exports.unmountComponentAtNode=function(a){if(!rk(a))throw Error(y(40));return a._reactRootContainer?(Xj(function(){tk(null,null,a,!1,function(){a._reactRootContainer=null;a[ff]=null})}),!0):!1};exports.unstable_batchedUpdates=Wj;exports.unstable_createPortal=function(a,b){return uk(a,b,2<arguments.length&&void 0!==arguments[2]?arguments[2]:null)};
 exports.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!rk(c))throw Error(y(200));if(null==a||void 0===a._reactInternals)throw Error(y(38));return tk(a,b,c,!1,d)};exports.version="17.0.2";
 
-},{"object-assign":28,"react":34,"scheduler":40}],31:[function(require,module,exports){
+},{"object-assign":35,"react":41,"scheduler":47}],38:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -29179,7 +29814,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react-dom.development.js":29,"./cjs/react-dom.production.min.js":30,"_process":42}],32:[function(require,module,exports){
+},{"./cjs/react-dom.development.js":36,"./cjs/react-dom.production.min.js":37,"_process":49}],39:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v17.0.2
  * react.development.js
@@ -31516,7 +32151,7 @@ exports.version = ReactVersion;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":42,"object-assign":28}],33:[function(require,module,exports){
+},{"_process":49,"object-assign":35}],40:[function(require,module,exports){
 /** @license React v17.0.2
  * react.production.min.js
  *
@@ -31541,7 +32176,7 @@ key:d,ref:k,props:e,_owner:h}};exports.createContext=function(a,b){void 0===b&&(
 exports.lazy=function(a){return{$$typeof:v,_payload:{_status:-1,_result:a},_init:Q}};exports.memo=function(a,b){return{$$typeof:u,type:a,compare:void 0===b?null:b}};exports.useCallback=function(a,b){return S().useCallback(a,b)};exports.useContext=function(a,b){return S().useContext(a,b)};exports.useDebugValue=function(){};exports.useEffect=function(a,b){return S().useEffect(a,b)};exports.useImperativeHandle=function(a,b,c){return S().useImperativeHandle(a,b,c)};
 exports.useLayoutEffect=function(a,b){return S().useLayoutEffect(a,b)};exports.useMemo=function(a,b){return S().useMemo(a,b)};exports.useReducer=function(a,b,c){return S().useReducer(a,b,c)};exports.useRef=function(a){return S().useRef(a)};exports.useState=function(a){return S().useState(a)};exports.version="17.0.2";
 
-},{"object-assign":28}],34:[function(require,module,exports){
+},{"object-assign":35}],41:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -31552,7 +32187,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react.development.js":32,"./cjs/react.production.min.js":33,"_process":42}],35:[function(require,module,exports){
+},{"./cjs/react.development.js":39,"./cjs/react.production.min.js":40,"_process":49}],42:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -32253,7 +32888,7 @@ exports.compose = compose;
 exports.createStore = createStore;
 
 }).call(this)}).call(this,require('_process'))
-},{"@babel/runtime/helpers/objectSpread2":14,"_process":42}],36:[function(require,module,exports){
+},{"@babel/runtime/helpers/objectSpread2":14,"_process":49}],43:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v0.20.2
  * scheduler-tracing.development.js
@@ -32604,7 +33239,7 @@ exports.unstable_wrap = unstable_wrap;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":42}],37:[function(require,module,exports){
+},{"_process":49}],44:[function(require,module,exports){
 /** @license React v0.20.2
  * scheduler-tracing.production.min.js
  *
@@ -32615,7 +33250,7 @@ exports.unstable_wrap = unstable_wrap;
  */
 'use strict';var b=0;exports.__interactionsRef=null;exports.__subscriberRef=null;exports.unstable_clear=function(a){return a()};exports.unstable_getCurrent=function(){return null};exports.unstable_getThreadID=function(){return++b};exports.unstable_subscribe=function(){};exports.unstable_trace=function(a,d,c){return c()};exports.unstable_unsubscribe=function(){};exports.unstable_wrap=function(a){return a};
 
-},{}],38:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v0.20.2
  * scheduler.development.js
@@ -33265,7 +33900,7 @@ exports.unstable_wrapCallback = unstable_wrapCallback;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":42}],39:[function(require,module,exports){
+},{"_process":49}],46:[function(require,module,exports){
 /** @license React v0.20.2
  * scheduler.production.min.js
  *
@@ -33287,7 +33922,7 @@ exports.unstable_next=function(a){switch(P){case 1:case 2:case 3:var b=3;break;d
 exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3}e=c+e;a={id:N++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,H(M,a),null===J(L)&&a===J(M)&&(S?h():S=!0,g(U,c-d))):(a.sortIndex=e,H(L,a),R||Q||(R=!0,f(V)));return a};
 exports.unstable_wrapCallback=function(a){var b=P;return function(){var c=P;P=b;try{return a.apply(this,arguments)}finally{P=c}}};
 
-},{}],40:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -33298,7 +33933,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler.development.js":38,"./cjs/scheduler.production.min.js":39,"_process":42}],41:[function(require,module,exports){
+},{"./cjs/scheduler.development.js":45,"./cjs/scheduler.production.min.js":46,"_process":49}],48:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -33309,7 +33944,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler-tracing.development.js":36,"./cjs/scheduler-tracing.production.min.js":37,"_process":42}],42:[function(require,module,exports){
+},{"./cjs/scheduler-tracing.development.js":43,"./cjs/scheduler-tracing.production.min.js":44,"_process":49}],49:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 

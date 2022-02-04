@@ -6,6 +6,9 @@
 
 npm init
 
+# bens ui components
+sudo npm install bens_ui_components
+
 # flow
 sudo npm install --save-dev flow-bin
 
